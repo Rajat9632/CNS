@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoSuite: Text Security Tool</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Load CryptoJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <style>
+        /* Use Inter font */
+        body {
+            font-family: "Inter", sans-serif;
+        }
+        /* Custom scrollbar for a cleaner look in dark mode */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #2d3748; /* gray-800 */
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #4a5568; /* gray-600 */
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* gray-500 */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // This app will be in dark mode
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-900 text-gray-200 flex items-center justify-center p-4 md:p-8 dark">
+    <div class="w-full max-w-4xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text pb-2">CryptoSuite</h1>
+            <p class="text-lg text-gray-400">A Tool for Applied Cryptography</p>
+        </header>
+
+        <!-- Project Opportunity Banner -->
+        <!-- This banner has been removed as requested -->
+
+        <main class="bg-gray-800 shadow-2xl rounded-lg p-6 md:p-8 border border-gray-700/50">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                
+                <!-- LEFT COLUMN: Inputs -->
+                <div class="flex flex-col gap-5">
+                    <div>
+                        <label for="algorithm" class="block text-sm font-medium text-gray-300 mb-2">1. Select Algorithm</label>
+                        <select id="algorithm" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                            <optgroup label="Confidentiality (Encryption)">
+                                <option value="aes">AES (Advanced Encryption Standard)</option>
+                                <option value="des">DES (Data Encryption Standard)</option>
+                                <option value="rabbit">Rabbit (Stream Cipher)</option>
+                            </optgroup>
+                            <optgroup label="Authentication (Hashing)">
+                                <option value="sha256">SHA-256 (Key not used)</option>
+                                <option value="hmac-sha256">HMAC-SHA256 (Keyed Hash)</option>
+                            </optgroup>
+                            <optgroup label="Authenticated Encryption (Both)">
+                                <option value="aes-hmac">AES + HMAC-SHA256</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="secretKey" class="block text-sm font-medium text-gray-300 mb-2">2. Enter Secret Key</label>
+                        <div class="relative">
+                            <input type="password" id="secretKey" placeholder="Enter your secret key..." class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none pr-10">
+                            <button id="togglePassword" type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white transition-colors duration-150" title="Toggle key visibility">
+                                <!-- Eye Open -->
+                                <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <!-- Eye Closed -->
+                                <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.67.11 2.458.31M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 17.657l-1.414-1.414M6.343 6.343L12 12m0 0l-5.657-5.657m5.657 5.657L6.343 6.343m5.657 5.657L17.657 17.657m-5.657-5.657l5.657 5.657" />
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="key-warning" class="text-xs text-yellow-400 mt-1 hidden">Note: Key is not used for SHA-250.</p>
+                    </div>
+
+                    <div>
+                        <label for="inputText" class="block text-sm font-medium text-gray-300 mb-2">3. Enter Text</label>
+                        <textarea id="inputText" rows="6" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter plain text to encrypt/hash...&#10;...or enter ciphertext/JSON to decrypt/verify."></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 mt-1">
+                        <button id="processBtn" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
+                            Process (Encrypt / Hash)
+                        </button>
+                        <button id="reverseBtn" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
+                            Reverse (Decrypt / Verify)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Output -->
+                <div class="flex flex-col relative">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="outputArea" class="block text-sm font-medium text-gray-300">Result</label>
+                        <div>
+                            <span id="copy-success" class="text-xs text-green-400 hidden mr-2">Copied!</span>
+                            <button id="copyBtn" class="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors" title="Copy to Clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="outputArea" rows="13" class="w-full h-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" readonly placeholder="Your output will appear here..."></textarea>
+                    <div id="messageArea" class="mt-2 text-sm h-10 p-2 rounded-md border border-transparent"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get DOM elements
+            const algorithmSelect = document.getElementById('algorithm');
+            const secretKeyInput = document.getElementById('secretKey');
+            const togglePassword = document.getElementById('togglePassword');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+            const keyWarning = document.getElementById('key-warning');
+            const inputText = document.getElementById('inputText');
+            const outputArea = document.getElementById('outputArea');
+            const messageArea = document.getElementById('messageArea');
+            const processBtn = document.getElementById('processBtn');
+            const reverseBtn = document.getElementById('reverseBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const copySuccess = document.getElementById('copy-success');
+
+            // --- Event Listeners ---
+            
+            // Show/hide key warning for SHA-256
+            algorithmSelect.addEventListener('change', () => {
+                keyWarning.classList.toggle('hidden', algorithmSelect.value !== 'sha256');
+            });
+
+            // Toggle password visibility
+            togglePassword.addEventListener('click', () => {
+                const isPassword = secretKeyInput.type === 'password';
+                secretKeyInput.type = isPassword ? 'text' : 'password';
+                eyeOpen.classList.toggle('hidden', isPassword);
+                eyeClosed.classList.toggle('hidden', !isPassword);
+            });
+
+            // Copy to clipboard
+            copyBtn.addEventListener('click', () => {
+                if (!outputArea.value) return;
+                
+                // Use execCommand for broader compatibility in sandboxed environments
+                try {
+                    outputArea.select();
+                    document.execCommand('copy');
+                    
+                    // Show "Copied!" message
+                    copySuccess.classList.remove('hidden');
+                    setTimeout(() => {
+                        copySuccess.classList.add('hidden');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    // Fallback for modern browsers (might not work in all iframes)
+                    // navigator.clipboard.writeText(outputArea.value).then(() => {
+                    //     copySuccess.classList.remove('hidden');
+                    //     setTimeout(() => copySuccess.classList.add('hidden'), 2000);
+                    // }).catch(err => {
+                    //     console.error('Clipboard API failed: ', err);
+                    // });
+                }
+            });
+
+            // Process Button Click
+            processBtn.addEventListener('click', () => {
+                const algorithm = algorithmSelect.value;
+                const key = secretKeyInput.value;
+                const text = inputText.value;
+
+                // Clear previous messages
+                clearMessage();
+                
+                if (!text) {
+                    showMessage('Input text cannot be empty.', 'error');
+                    return;
+                }
+                if (algorithm !== 'sha256' && !key) {
+                    showMessage('Secret key is required for this algorithm.', 'error');
+                    return;
+                }
+
+                try {
+                    let result = '';
+                    switch (algorithm) {
+                        case 'aes':
+                            result = CryptoJS.AES.encrypt(text, key).toString();
+                            showMessage('AES Encrypted successfully.', 'success');
+                            break;
+                        case 'des':
+                            result = CryptoJS.DES.encrypt(text, key).toString();
+                            showMessage('DES Encrypted successfully.', 'success');
+                            break;
+                        case 'rabbit':
+                            result = CryptoJS.Rabbit.encrypt(text, key).toString();
+                            showMessage('Rabbit Encrypted successfully.', 'success');
+                            break;
+                        case 'sha256':
+                            result = CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex);
+                            showMessage('SHA-256 Hash generated.', 'success');
+                            break;
+                        case 'hmac-sha256':
+                            result = CryptoJS.HmacSHA256(text, key).toString(CryptoJS.enc.Hex);
+                            showMessage('HMAC-SHA256 generated.', 'success');
+                            break;
+                        case 'aes-hmac':
+                            const ciphertext = CryptoJS.AES.encrypt(text, key).toString();
+                            const mac = CryptoJS.HmacSHA256(ciphertext, key).toString(CryptoJS.enc.Hex);
+                            const output = {
+                                ciphertext: ciphertext,
+                                mac: mac
+                            };
+                            result = JSON.stringify(output, null, 2); // Pretty-print JSON
+                            showMessage('Authenticated encryption complete.', 'success');
+                            break;
+                    }
+                    outputArea.value = result;
+                } catch (e) {
+                    showMessage(`Error: ${e.message}`, 'error');
+                }
+            });
+
+            // Reverse Button Click
+            reverseBtn.addEventListener('click', () => {
+                const algorithm = algorithmSelect.value;
+                const key = secretKeyInput.value;
+                const text = inputText.value; // This is the ciphertext/JSON/hash
+
+                clearMessage();
+
+                if (!text) {
+                    showMessage('Input text to reverse/verify cannot be empty.', 'error');
+                    return;
+                }
+                if (algorithm !== 'sha256' && !key) {
+                    showMessage('Secret key is required for this algorithm.', 'error');
+                    return;
+                }
+
+                try {
+                    let result = '';
+                    switch (algorithm) {
+                        case 'aes':
+                        case 'des':
+                        case 'rabbit':
+                            let decryptFn;
+                            if (algorithm === 'aes') decryptFn = CryptoJS.AES.decrypt;
+                            if (algorithm === 'des') decryptFn = CryptoJS.DES.decrypt;
+                            if (algorithm === 'rabbit') decryptFn = CryptoJS.Rabbit.decrypt;
+                            
+                            const decrypted = decryptFn(text, key);
+                            const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                            
+                            if (!decryptedText) {
+                                throw new Error('Decryption failed. Wrong key or corrupted data.');
+                            }
+                            result = decryptedText;
+                            showMessage('Decrypted successfully.', 'success');
+                            break;
+                        
+                        case 'sha256':
+                            result = 'Hashing is a one-way function. It cannot be decrypted.\n\nTo VERIFY, run "Process (Encrypt / Hash)" on your original text and manually compare the hashes.';
+                            showMessage('Verification Info', 'info');
+                            break;
+
+                        case 'hmac-sha256':
+                            result = 'HMAC is a one-way function. It cannot be decrypted.\n\nTo VERIFY, run "Process (Encrypt / Hash)" on your original text with the correct key and manually compare the MACs.';
+                            showMessage('Verification Info', 'info');
+                            break;
+
+                        case 'aes-hmac':
+                            // 1. Parse the JSON input
+                            let inputJSON;
+                            try {
+                                inputJSON = JSON.parse(text);
+                            } catch (e) {
+                                throw new Error('Invalid JSON input. Expected {"ciphertext": "...", "mac": "..."}');
+                            }
+
+                            if (!inputJSON.ciphertext || !inputJSON.mac) {
+                                throw new Error('Invalid JSON format. "ciphertext" or "mac" field is missing.');
+                            }
+
+                            // 2. Verify the MAC
+                            const calculatedMac = CryptoJS.HmacSHA256(inputJSON.ciphertext, key).toString(CryptoJS.enc.Hex);
+
+                            if (calculatedMac !== inputJSON.mac) {
+                                // VERIFICATION FAILED
+                                showMessage('VERIFICATION FAILED! Data may be tampered with.', 'error');
+                                result = '--- ERROR: MAC MISMATCH ---\n\nThe Message Authentication Code does not match. The data has been modified or the key is wrong. Decryption aborted for security.';
+                                break;
+                            }
+
+                            // 3. If MAC is valid, decrypt
+                            const authDecrypted = CryptoJS.AES.decrypt(inputJSON.ciphertext, key);
+                            const authDecryptedText = authDecrypted.toString(CryptoJS.enc.Utf8);
+
+                            if (!authDecryptedText) {
+                                throw new Error('Verification passed, but decryption failed. Corrupted data.');
+                            }
+
+                            result = authDecryptedText;
+                            showMessage('Verification Succeeded. Decrypted.', 'success');
+                            break;
+                    }
+                    outputArea.value = result;
+                } catch (e) {
+                    showMessage(`Error: ${e.message}`, 'error');
+                }
+            });
+
+            // --- Helper Functions ---
+            
+            function showMessage(message, type = 'info') {
+                messageArea.textContent = message;
+                messageArea.classList.remove('text-green-300', 'text-red-300', 'text-blue-300', 'bg-green-900/50', 'bg-red-900/50', 'bg-blue-900/50');
+                
+                if (type === 'success') {
+                    messageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50');
+                } else if (type === 'error') {
+                    messageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50');
+                } else {
+                    messageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50');
+                }
+            }
+
+            function clearMessage() {
+                messageArea.textContent = '';
+                messageArea.classList.remove('text-green-300', 'text-red-300', 'text-blue-300', 'bg-green-900/50', 'bg-red-900/50', 'bg-blue-900/50', 'border-green-700/50', 'border-red-700/50', 'border-blue-700/50');
+            }
+        });
+    </script>
+</body>
+</html>
