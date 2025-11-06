@@ -1,31 +1,37 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoSuite: Text Security Tool</title>
+    <title>CryptoSuite: Classical & Modern Cryptography</title>
     <!-- 1. Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 2. Load CryptoJS Library -->
+    <!-- 2. Load CryptoJS Library (for Modern Ciphers) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
         /* Use Inter font */
         body {
             font-family: "Inter", sans-serif;
+            background-color: #111827; /* gray-900 */
         }
         /* Custom scrollbar for a cleaner look in dark mode */
-        textarea::-webkit-scrollbar {
-            width: 8px;
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #374151; /* gray-700 */ }
+        textarea::-webkit-scrollbar-thumb { background: #6b7280; /* gray-500 */ border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #9ca3af; /* gray-400 */ }
+        /* Simple focus ring for classical inputs */
+        .form-input-classical {
+            background-color: #1f2937; /* gray-800 */
+            border: 1px solid #4b5563; /* gray-600 */
+            color: white;
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 0.625rem 0.75rem; /* px-3 py-2.5 */
+            width: 100%;
         }
-        textarea::-webkit-scrollbar-track {
-            background: #2d3748; /* gray-800 */
-        }
-        textarea::-webkit-scrollbar-thumb {
-            background: #4a5568; /* gray-600 */
-            border-radius: 4px;
-        }
-        textarea::-webkit-scrollbar-thumb:hover {
-            background: #718096; /* gray-500 */
+        .form-input-classical:focus {
+            outline: none;
+            border-color: #60a5fa; /* blue-400 */
+            box-shadow: 0 0 0 2px #3b82f6; /* ring-2 ring-blue-500 */
         }
     </style>
     <script>
@@ -41,21 +47,73 @@
         }
     </script>
 </head>
-<body class="h-full bg-gray-900 text-gray-200 flex items-center justify-center p-4 md:p-8 dark">
-    <div class="w-full max-w-4xl mx-auto">
-        <header class="text-center mb-6">
+<body class="min-h-screen bg-gray-900 text-gray-200 p-4 md:p-8 dark">
+    <div class="w-full max-w-7xl mx-auto">
+        <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text pb-2">CryptoSuite</h1>
-            <p class="text-lg text-gray-400">A Tool for Applied Cryptography</p>
+            <p class="text-lg text-gray-400">A Tool for Classical & Modern Cryptography</p>
         </header>
 
-        <!-- Project Opportunity Banner -->
-        <!-- This banner has been removed as requested -->
+        <!-- Main Dashboard Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <main class="bg-gray-800 shadow-2xl rounded-lg p-6 md:p-8 border border-gray-700/50">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <!-- === COLUMN 1: CLASSICAL CIPHERS === -->
+            <main class="bg-gray-800 shadow-2xl rounded-lg p-6 md:p-8 border border-gray-700/50">
+                <h2 class="text-3xl font-bold text-white mb-6 border-b border-gray-700 pb-3">Classical Ciphers</h2>
                 
-                <!-- LEFT COLUMN: Inputs -->
                 <div class="flex flex-col gap-5">
+                    <!-- Algorithm Select -->
+                    <div>
+                        <label for="classicalAlgorithm" class="block text-sm font-medium text-gray-300 mb-2">1. Select Algorithm</label>
+                        <select id="classicalAlgorithm" class="form-input-classical">
+                            <option value="caesar">Caesar Cipher</option>
+                            <option value="atbash">Atbash Cipher</option>
+                            <option value="vigenere">Vigenere Cipher</option>
+                            <option value="affine">Affine Cipher</option>
+                            <option value="playfair">Playfair Cipher</option>
+                            <option value="railfence">Rail Fence Cipher</option>
+                        </select>
+                    </div>
+
+                    <!-- Key Input -->
+                    <div>
+                        <label for="classicalKey" class="block text-sm font-medium text-gray-300 mb-2">2. Enter Key</label>
+                        <input type="text" id="classicalKey" placeholder="Enter your key..." class="form-input-classical">
+                        <p id="classicalKeyInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
+                            Enter a number (e.g., 3)
+                        </p>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div>
+                        <label for="classicalInputText" class="block text-sm font-medium text-gray-300 mb-2">3. Enter Text</label>
+                        <textarea id="classicalInputText" rows="6" class="form-input-classical" placeholder="Enter plain text to encrypt...&#10;...or enter cipher text to decrypt."></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 mt-1">
+                        <button id="classicalEncryptBtn" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
+                            Encrypt
+                        </button>
+                        <button id="classicalDecryptBtn" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
+                            Decrypt
+                        </button>
+                    </div>
+
+                    <!-- Output -->
+                    <div>
+                        <label for="classicalOutputArea" class="block text-sm font-medium text-gray-300 mb-2">Result</label>
+                        <textarea id="classicalOutputArea" rows="6" class="form-input-classical font-mono text-sm" readonly placeholder="Your output will appear here..."></textarea>
+                    </div>
+                </div>
+            </main>
+
+            <!-- === COLUMN 2: MODERN CIPHERS (CryptoJS) === -->
+            <main class="bg-gray-800 shadow-2xl rounded-lg p-6 md:p-8 border border-gray-700/50">
+                <h2 class="text-3xl font-bold text-white mb-6 border-b border-gray-700 pb-3">Modern Ciphers</h2>
+                
+                <div class="flex flex-col gap-5">
+                    <!-- Algorithm Select -->
                     <div>
                         <label for="algorithm" class="block text-sm font-medium text-gray-300 mb-2">1. Select Algorithm</label>
                         <select id="algorithm" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none">
@@ -74,6 +132,7 @@
                         </select>
                     </div>
 
+                    <!-- Key Input -->
                     <div>
                         <label for="secretKey" class="block text-sm font-medium text-gray-300 mb-2">2. Enter Secret Key</label>
                         <div class="relative">
@@ -91,14 +150,16 @@
                                 </svg>
                             </button>
                         </div>
-                        <p id="key-warning" class="text-xs text-yellow-400 mt-1 hidden">Note: Key is not used for SHA-250.</p>
+                        <p id="key-warning" class="text-xs text-yellow-400 mt-2 hidden">Note: Key is not used for SHA-256.</p>
                     </div>
 
+                    <!-- Text Input -->
                     <div>
                         <label for="inputText" class="block text-sm font-medium text-gray-300 mb-2">3. Enter Text</label>
                         <textarea id="inputText" rows="6" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter plain text to encrypt/hash...&#10;...or enter ciphertext/JSON to decrypt/verify."></textarea>
                     </div>
 
+                    <!-- Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 mt-1">
                         <button id="processBtn" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
                             Process (Encrypt / Hash)
@@ -107,32 +168,34 @@
                             Reverse (Decrypt / Verify)
                         </button>
                     </div>
-                </div>
 
-                <!-- RIGHT COLUMN: Output -->
-                <div class="flex flex-col relative">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="outputArea" class="block text-sm font-medium text-gray-300">Result</label>
-                        <div>
-                            <span id="copy-success" class="text-xs text-green-400 hidden mr-2">Copied!</span>
-                            <button id="copyBtn" class="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors" title="Copy to Clipboard">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
-                            </button>
+                    <!-- Output -->
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="outputArea" class="block text-sm font-medium text-gray-300">Result</label>
+                            <div>
+                                <span id="copy-success" class="text-xs text-green-400 hidden mr-2">Copied!</span>
+                                <button id="copyBtn" class="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors" title="Copy to Clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+                        <textarea id="outputArea" rows="6" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" readonly placeholder="Your output will appear here..."></textarea>
+                        <div id="messageArea" class="mt-2 text-sm h-10 p-2 rounded-md border border-transparent"></div>
                     </div>
-                    <textarea id="outputArea" rows="13" class="w-full h-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" readonly placeholder="Your output will appear here..."></textarea>
-                    <div id="messageArea" class="mt-2 text-sm h-10 p-2 rounded-md border border-transparent"></div>
-                </div>
 
-            </div>
-        </main>
+                </div>
+            </main>
+
+        </div>
     </div>
 
     <script>
+        // === SCRIPT FOR MODERN CIPHERS (CryptoJS) ===
         document.addEventListener('DOMContentLoaded', () => {
-            // Get DOM elements
+            // Get DOM elements for Modern Ciphers
             const algorithmSelect = document.getElementById('algorithm');
             const secretKeyInput = document.getElementById('secretKey');
             const togglePassword = document.getElementById('togglePassword');
@@ -147,212 +210,389 @@
             const copyBtn = document.getElementById('copyBtn');
             const copySuccess = document.getElementById('copy-success');
 
-            // --- Event Listeners ---
-            
-            // Show/hide key warning for SHA-256
-            algorithmSelect.addEventListener('change', () => {
-                keyWarning.classList.toggle('hidden', algorithmSelect.value !== 'sha256');
-            });
+            // --- Event Listeners for Modern Ciphers ---
+            if (algorithmSelect) {
+                // Show/hide key warning for SHA-256
+                algorithmSelect.addEventListener('change', () => {
+                    keyWarning.classList.toggle('hidden', algorithmSelect.value !== 'sha256');
+                });
 
-            // Toggle password visibility
-            togglePassword.addEventListener('click', () => {
-                const isPassword = secretKeyInput.type === 'password';
-                secretKeyInput.type = isPassword ? 'text' : 'password';
-                eyeOpen.classList.toggle('hidden', isPassword);
-                eyeClosed.classList.toggle('hidden', !isPassword);
-            });
+                // Toggle password visibility
+                togglePassword.addEventListener('click', () => {
+                    const isPassword = secretKeyInput.type === 'password';
+                    secretKeyInput.type = isPassword ? 'text' : 'password';
+                    eyeOpen.classList.toggle('hidden', isPassword);
+                    eyeClosed.classList.toggle('hidden', !isPassword);
+                });
 
-            // Copy to clipboard
-            copyBtn.addEventListener('click', () => {
-                if (!outputArea.value) return;
-                
-                // Use execCommand for broader compatibility in sandboxed environments
-                try {
-                    outputArea.select();
-                    document.execCommand('copy');
-                    
-                    // Show "Copied!" message
-                    copySuccess.classList.remove('hidden');
-                    setTimeout(() => {
-                        copySuccess.classList.add('hidden');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                    // Fallback for modern browsers (might not work in all iframes)
-                    // navigator.clipboard.writeText(outputArea.value).then(() => {
-                    //     copySuccess.classList.remove('hidden');
-                    //     setTimeout(() => copySuccess.classList.add('hidden'), 2000);
-                    // }).catch(err => {
-                    //     console.error('Clipboard API failed: ', err);
-                    // });
-                }
-            });
-
-            // Process Button Click
-            processBtn.addEventListener('click', () => {
-                const algorithm = algorithmSelect.value;
-                const key = secretKeyInput.value;
-                const text = inputText.value;
-
-                // Clear previous messages
-                clearMessage();
-                
-                if (!text) {
-                    showMessage('Input text cannot be empty.', 'error');
-                    return;
-                }
-                if (algorithm !== 'sha256' && !key) {
-                    showMessage('Secret key is required for this algorithm.', 'error');
-                    return;
-                }
-
-                try {
-                    let result = '';
-                    switch (algorithm) {
-                        case 'aes':
-                            result = CryptoJS.AES.encrypt(text, key).toString();
-                            showMessage('AES Encrypted successfully.', 'success');
-                            break;
-                        case 'des':
-                            result = CryptoJS.DES.encrypt(text, key).toString();
-                            showMessage('DES Encrypted successfully.', 'success');
-                            break;
-                        case 'rabbit':
-                            result = CryptoJS.Rabbit.encrypt(text, key).toString();
-                            showMessage('Rabbit Encrypted successfully.', 'success');
-                            break;
-                        case 'sha256':
-                            result = CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex);
-                            showMessage('SHA-256 Hash generated.', 'success');
-                            break;
-                        case 'hmac-sha256':
-                            result = CryptoJS.HmacSHA256(text, key).toString(CryptoJS.enc.Hex);
-                            showMessage('HMAC-SHA256 generated.', 'success');
-                            break;
-                        case 'aes-hmac':
-                            const ciphertext = CryptoJS.AES.encrypt(text, key).toString();
-                            const mac = CryptoJS.HmacSHA256(ciphertext, key).toString(CryptoJS.enc.Hex);
-                            const output = {
-                                ciphertext: ciphertext,
-                                mac: mac
-                            };
-                            result = JSON.stringify(output, null, 2); // Pretty-print JSON
-                            showMessage('Authenticated encryption complete.', 'success');
-                            break;
+                // Copy to clipboard
+                copyBtn.addEventListener('click', () => {
+                    if (!outputArea.value) return;
+                    try {
+                        outputArea.select();
+                        document.execCommand('copy');
+                        copySuccess.classList.remove('hidden');
+                        setTimeout(() => copySuccess.classList.add('hidden'), 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
                     }
-                    outputArea.value = result;
-                } catch (e) {
-                    showMessage(`Error: ${e.message}`, 'error');
-                }
-            });
+                });
 
-            // Reverse Button Click
-            reverseBtn.addEventListener('click', () => {
-                const algorithm = algorithmSelect.value;
-                const key = secretKeyInput.value;
-                const text = inputText.value; // This is the ciphertext/JSON/hash
+                // Process Button Click
+                processBtn.addEventListener('click', () => {
+                    const algorithm = algorithmSelect.value;
+                    const key = secretKeyInput.value;
+                    const text = inputText.value;
 
-                clearMessage();
+                    clearMessage();
+                    if (!text) { showMessage('Input text cannot be empty.', 'error'); return; }
+                    if (algorithm !== 'sha256' && !key) { showMessage('Secret key is required for this algorithm.', 'error'); return; }
 
-                if (!text) {
-                    showMessage('Input text to reverse/verify cannot be empty.', 'error');
-                    return;
-                }
-                if (algorithm !== 'sha256' && !key) {
-                    showMessage('Secret key is required for this algorithm.', 'error');
-                    return;
-                }
-
-                try {
-                    let result = '';
-                    switch (algorithm) {
-                        case 'aes':
-                        case 'des':
-                        case 'rabbit':
-                            let decryptFn;
-                            if (algorithm === 'aes') decryptFn = CryptoJS.AES.decrypt;
-                            if (algorithm === 'des') decryptFn = CryptoJS.DES.decrypt;
-                            if (algorithm === 'rabbit') decryptFn = CryptoJS.Rabbit.decrypt;
-                            
-                            const decrypted = decryptFn(text, key);
-                            const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-                            
-                            if (!decryptedText) {
-                                throw new Error('Decryption failed. Wrong key or corrupted data.');
-                            }
-                            result = decryptedText;
-                            showMessage('Decrypted successfully.', 'success');
-                            break;
-                        
-                        case 'sha256':
-                            result = 'Hashing is a one-way function. It cannot be decrypted.\n\nTo VERIFY, run "Process (Encrypt / Hash)" on your original text and manually compare the hashes.';
-                            showMessage('Verification Info', 'info');
-                            break;
-
-                        case 'hmac-sha256':
-                            result = 'HMAC is a one-way function. It cannot be decrypted.\n\nTo VERIFY, run "Process (Encrypt / Hash)" on your original text with the correct key and manually compare the MACs.';
-                            showMessage('Verification Info', 'info');
-                            break;
-
-                        case 'aes-hmac':
-                            // 1. Parse the JSON input
-                            let inputJSON;
-                            try {
-                                inputJSON = JSON.parse(text);
-                            } catch (e) {
-                                throw new Error('Invalid JSON input. Expected {"ciphertext": "...", "mac": "..."}');
-                            }
-
-                            if (!inputJSON.ciphertext || !inputJSON.mac) {
-                                throw new Error('Invalid JSON format. "ciphertext" or "mac" field is missing.');
-                            }
-
-                            // 2. Verify the MAC
-                            const calculatedMac = CryptoJS.HmacSHA256(inputJSON.ciphertext, key).toString(CryptoJS.enc.Hex);
-
-                            if (calculatedMac !== inputJSON.mac) {
-                                // VERIFICATION FAILED
-                                showMessage('VERIFICATION FAILED! Data may be tampered with.', 'error');
-                                result = '--- ERROR: MAC MISMATCH ---\n\nThe Message Authentication Code does not match. The data has been modified or the key is wrong. Decryption aborted for security.';
+                    try {
+                        let result = '';
+                        switch (algorithm) {
+                            case 'aes': result = CryptoJS.AES.encrypt(text, key).toString(); showMessage('AES Encrypted successfully.', 'success'); break;
+                            case 'des': result = CryptoJS.DES.encrypt(text, key).toString(); showMessage('DES Encrypted successfully.', 'success'); break;
+                            case 'rabbit': result = CryptoJS.Rabbit.encrypt(text, key).toString(); showMessage('Rabbit Encrypted successfully.', 'success'); break;
+                            case 'sha256': result = CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex); showMessage('SHA-256 Hash generated.', 'success'); break;
+                            case 'hmac-sha256': result = CryptoJS.HmacSHA256(text, key).toString(CryptoJS.enc.Hex); showMessage('HMAC-SHA256 generated.', 'success'); break;
+                            case 'aes-hmac':
+                                const ciphertext = CryptoJS.AES.encrypt(text, key).toString();
+                                const mac = CryptoJS.HmacSHA256(ciphertext, key).toString(CryptoJS.enc.Hex);
+                                result = JSON.stringify({ ciphertext, mac }, null, 2);
+                                showMessage('Authenticated encryption complete.', 'success');
                                 break;
-                            }
+                        }
+                        outputArea.value = result;
+                    } catch (e) { showMessage(`Error: ${e.message}`, 'error'); }
+                });
 
-                            // 3. If MAC is valid, decrypt
-                            const authDecrypted = CryptoJS.AES.decrypt(inputJSON.ciphertext, key);
-                            const authDecryptedText = authDecrypted.toString(CryptoJS.enc.Utf8);
+                // Reverse Button Click
+                reverseBtn.addEventListener('click', () => {
+                    const algorithm = algorithmSelect.value;
+                    const key = secretKeyInput.value;
+                    const text = inputText.value; 
 
-                            if (!authDecryptedText) {
-                                throw new Error('Verification passed, but decryption failed. Corrupted data.');
-                            }
+                    clearMessage();
+                    if (!text) { showMessage('Input text to reverse/verify cannot be empty.', 'error'); return; }
+                    if (algorithm !== 'sha256' && !key) { showMessage('Secret key is required for this algorithm.', 'error'); return; }
 
-                            result = authDecryptedText;
-                            showMessage('Verification Succeeded. Decrypted.', 'success');
-                            break;
-                    }
-                    outputArea.value = result;
-                } catch (e) {
-                    showMessage(`Error: ${e.message}`, 'error');
-                }
-            });
-
-            // --- Helper Functions ---
-            
+                    try {
+                        let result = '';
+                        switch (algorithm) {
+                            case 'aes':
+                            case 'des':
+                            case 'rabbit':
+                                let decryptFn = { aes: CryptoJS.AES.decrypt, des: CryptoJS.DES.decrypt, rabbit: CryptoJS.Rabbit.decrypt }[algorithm];
+                                const decrypted = decryptFn(text, key);
+                                const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                                if (!decryptedText) { throw new Error('Decryption failed. Wrong key or corrupted data.'); }
+                                result = decryptedText;
+                                showMessage('Decrypted successfully.', 'success');
+                                break;
+                            case 'sha256':
+                                result = 'Hashing is one-way. It cannot be decrypted.\n\nTo VERIFY, run "Process" on your original text and compare the hashes.';
+                                showMessage('Verification Info', 'info');
+                                break;
+                            case 'hmac-sha256':
+                                result = 'HMAC is one-way. It cannot be decrypted.\n\nTo VERIFY, run "Process" on your original text with the key and compare the MACs.';
+                                showMessage('Verification Info', 'info');
+                                break;
+                            case 'aes-hmac':
+                                let inputJSON;
+                                try { inputJSON = JSON.parse(text); } catch (e) { throw new Error('Invalid JSON input.'); }
+                                if (!inputJSON.ciphertext || !inputJSON.mac) { throw new Error('Invalid JSON format.'); }
+                                
+                                const calculatedMac = CryptoJS.HmacSHA256(inputJSON.ciphertext, key).toString(CryptoJS.enc.Hex);
+                                if (calculatedMac !== inputJSON.mac) {
+                                    showMessage('VERIFICATION FAILED! Data tampered or wrong key.', 'error');
+                                    result = '--- ERROR: MAC MISMATCH ---';
+                                    break;
+                                }
+                                
+                                const authDecrypted = CryptoJS.AES.decrypt(inputJSON.ciphertext, key);
+                                const authDecryptedText = authDecrypted.toString(CryptoJS.enc.Utf8);
+                                if (!authDecryptedText) { throw new Error('Verification passed, but decryption failed.'); }
+                                
+                                result = authDecryptedText;
+                                showMessage('Verification Succeeded. Decrypted.', 'success');
+                                break;
+                        }
+                        outputArea.value = result;
+                    } catch (e) { showMessage(`Error: ${e.message}`, 'error'); }
+                });
+            }
+            // --- Helper Functions for Modern Ciphers ---
             function showMessage(message, type = 'info') {
                 messageArea.textContent = message;
-                messageArea.classList.remove('text-green-300', 'text-red-300', 'text-blue-300', 'bg-green-900/50', 'bg-red-900/50', 'bg-blue-900/50');
-                
-                if (type === 'success') {
-                    messageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50');
-                } else if (type === 'error') {
-                    messageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50');
-                } else {
-                    messageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50');
+                messageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border'; // Reset classes
+                if (type === 'success') { messageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50'); }
+                else if (type === 'error') { messageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50'); }
+                else { messageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50'); }
+            }
+            function clearMessage() {
+                messageArea.textContent = '';
+                messageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border border-transparent';
+            }
+        });
+
+        // === SCRIPT FOR CLASSICAL CIPHERS ===
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get DOM elements for Classical Ciphers
+            const select = document.getElementById('classicalAlgorithm');
+            const keyInput = document.getElementById('classicalKey');
+            const keyInfo = document.getElementById('classicalKeyInfo');
+            const inputText = document.getElementById('classicalInputText');
+            const outputArea = document.getElementById('classicalOutputArea');
+            const encryptBtn = document.getElementById('classicalEncryptBtn');
+            const decryptBtn = document.getElementById('classicalDecryptBtn');
+
+            const keyInfoMap = {
+                'caesar': 'Enter a number (e.g., 3)',
+                'atbash': 'No key required',
+                'vigenere': 'Enter a keyword (e.g., "KEY")',
+                'affine': 'Enter "a" and "b" as numbers, comma-separated (e.g., "5, 8"). "a" must be coprime to 26.',
+                'playfair': 'Enter a keyword (e.g., "PLAYFAIR")',
+                'railfence': 'Enter a number of rails (e.g., 3)'
+            };
+
+            // Update key info on algorithm change
+            select.addEventListener('change', () => {
+                const info = keyInfoMap[select.value] || 'Enter key';
+                keyInfo.textContent = info;
+                keyInput.disabled = (select.value === 'atbash');
+                keyInput.placeholder = (select.value === 'atbash') ? 'N/A' : 'Enter your key...';
+            });
+
+            // Process function
+            function processClassical(isEncrypt) {
+                const algorithm = select.value;
+                const key = keyInput.value;
+                const text = inputText.value;
+                let result = '';
+
+                try {
+                    switch (algorithm) {
+                        case 'caesar':
+                            const shift = parseInt(key);
+                            if (isNaN(shift)) throw new Error('Key must be a number.');
+                            result = caesarCipher(text, shift, isEncrypt);
+                            break;
+                        case 'atbash':
+                            result = atbashCipher(text);
+                            break;
+                        case 'vigenere':
+                            if (!/^[a-zA-Z]+$/.test(key)) throw new Error('Key must be alphabetic.');
+                            result = vigenereCipher(text, key, isEncrypt);
+                            break;
+                        case 'affine':
+                            const parts = key.split(',').map(n => parseInt(n.trim()));
+                            if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) throw new Error('Key must be "a, b" (e.g., "5, 8").');
+                            const [a, b] = parts;
+                            if (gcd(a, 26) !== 1) throw new Error('"a" must be coprime to 26 (e.g., 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25).');
+                            result = affineCipher(text, a, b, isEncrypt);
+                            break;
+                        case 'playfair':
+                            if (!key) throw new Error('Key is required.');
+                            result = playfairCipher(text, key, isEncrypt);
+                            break;
+                        case 'railfence':
+                            const rails = parseInt(key);
+                            if (isNaN(rails) || rails < 2) throw new Error('Key (rails) must be a number >= 2.');
+                            result = railFenceCipher(text, rails, isEncrypt);
+                            break;
+                    }
+                    outputArea.value = result;
+                    outputArea.classList.remove('text-red-300');
+                } catch (e) {
+                    outputArea.value = `Error: ${e.message}`;
+                    outputArea.classList.add('text-red-300');
                 }
             }
 
-            function clearMessage() {
-                messageArea.textContent = '';
-                messageArea.classList.remove('text-green-300', 'text-red-300', 'text-blue-300', 'bg-green-900/50', 'bg-red-900/50', 'bg-blue-900/50', 'border-green-700/50', 'border-red-700/50', 'border-blue-700/50');
+            encryptBtn.addEventListener('click', () => processClassical(true));
+            decryptBtn.addEventListener('click', () => processClassical(false));
+
+            // --- Classical Cipher Logic ---
+
+            // Helper: Modulo that handles negative numbers
+            function mod(n, m) { return ((n % m) + m) % m; }
+            // Helper: GCD
+            function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+            // Helper: Modular Inverse
+            function modInverse(a, m) {
+                a = mod(a, m);
+                for (let x = 1; x < m; x++) {
+                    if (mod(a * x, m) === 1) return x;
+                }
+                throw new Error('Modular inverse does not exist.');
+            }
+
+            // 1. Caesar Cipher
+            function caesarCipher(text, shift, isEncrypt) {
+                const s = isEncrypt ? parseInt(shift) : -parseInt(shift);
+                return text.replace(/[a-zA-Z]/g, (char) => {
+                    const base = char <= 'Z' ? 65 : 97;
+                    return String.fromCharCode(mod(char.charCodeAt(0) - base + s, 26) + base);
+                });
+            }
+
+            // 2. Atbash Cipher
+            function atbashCipher(text) {
+                return text.replace(/[a-zA-Z]/g, (char) => {
+                    const base = char <= 'Z' ? 65 : 97;
+                    return String.fromCharCode((25 - (char.charCodeAt(0) - base)) + base);
+                });
+            }
+
+            // 3. Vigenere Cipher
+            function vigenereCipher(text, key, isEncrypt) {
+                let keyIndex = 0;
+                const keyUpper = key.toUpperCase();
+                return text.replace(/[a-zA-Z]/g, (char) => {
+                    const base = char <= 'Z' ? 65 : 97;
+                    const keyChar = keyUpper[keyIndex % keyUpper.length];
+                    const shift = keyChar.charCodeAt(0) - 65;
+                    const finalShift = isEncrypt ? shift : -shift;
+                    keyIndex++; // Only increment for alphabetic characters
+                    return String.fromCharCode(mod(char.charCodeAt(0) - base + finalShift, 26) + base);
+                });
+            }
+
+            // 4. Affine Cipher
+            function affineCipher(text, a, b, isEncrypt) {
+                const m = 26;
+                let a_inv = -1;
+                if (!isEncrypt) {
+                    a_inv = modInverse(a, m);
+                }
+                return text.replace(/[a-zA-Z]/g, (char) => {
+                    const base = char <= 'Z' ? 65 : 97;
+                    const x = char.charCodeAt(0) - base;
+                    let result;
+                    if (isEncrypt) {
+                        result = mod(a * x + b, m);
+                    } else {
+                        result = mod(a_inv * (x - b), m);
+                    }
+                    return String.fromCharCode(result + base);
+                });
+            }
+
+            // 5. Playfair Cipher
+            function playfairCipher(text, key, isEncrypt) {
+                // 5a. Generate Matrix
+                const matrix = generatePlayfairMatrix(key);
+                const pos = Array(26).fill(null); // Position lookup
+                for(let r=0; r<5; r++) {
+                    for(let c=0; c<5; c++) {
+                        pos[matrix[r][c].charCodeAt(0) - 65] = {r, c};
+                    }
+                }
+
+                // 5b. Prepare Text
+                let cleanText = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+                let digraphs = [];
+                if (isEncrypt) {
+                    for (let i = 0; i < cleanText.length; i += 2) {
+                        if (i + 1 === cleanText.length) { // Odd length
+                            digraphs.push(cleanText[i] + 'X');
+                            break;
+                        }
+                        if (cleanText[i] === cleanText[i + 1]) { // Double letter
+                            digraphs.push(cleanText[i] + 'X');
+                            i--; // Process this char again
+                        } else {
+                            digraphs.push(cleanText[i] + cleanText[i + 1]);
+                        }
+                    }
+                } else { // Decrypt
+                    for (let i = 0; i < cleanText.length; i += 2) {
+                        digraphs.push(cleanText[i] + cleanText[i + 1]);
+                    }
+                }
+
+                // 5c. Process Digraphs
+                let result = '';
+                const shift = isEncrypt ? 1 : -1;
+                for (const pair of digraphs) {
+                    const p1 = pos[pair[0].charCodeAt(0) - 65];
+                    const p2 = pos[pair[1].charCodeAt(0) - 65];
+
+                    if (p1.r === p2.r) { // Same row
+                        result += matrix[p1.r][mod(p1.c + shift, 5)];
+                        result += matrix[p2.r][mod(p2.c + shift, 5)];
+                    } else if (p1.c === p2.c) { // Same column
+                        result += matrix[mod(p1.r + shift, 5)][p1.c];
+                        result += matrix[mod(p2.r + shift, 5)][p2.c];
+                    } else { // Rectangle
+                        result += matrix[p1.r][p2.c];
+                        result += matrix[p2.r][p1.c];
+                    }
+                }
+                return result;
+            }
+
+            function generatePlayfairMatrix(key) {
+                const keyClean = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+                const set = new Set(keyClean);
+                const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // No J
+                for (const char of alphabet) {
+                    set.add(char);
+                }
+                const chars = Array.from(set);
+                const matrix = [];
+                for (let i = 0; i < 5; i++) {
+                    matrix.push(chars.slice(i * 5, i * 5 + 5));
+                }
+                return matrix;
+            }
+
+            // 6. Rail Fence Cipher
+            function railFenceCipher(text, rails, isEncrypt) {
+                if (isEncrypt) {
+                    const fences = Array.from({ length: rails }, () => []);
+                    let rail = 0;
+                    let dir = 1;
+                    for (const char of text) {
+                        fences[rail].push(char);
+                        rail += dir;
+                        if (rail === 0 || rail === rails - 1) {
+                            dir *= -1; // Change direction
+                        }
+                    }
+                    return fences.map(fence => fence.join('')).join('');
+                } else { // Decrypt
+                    const len = text.length;
+                    const fences = Array.from({ length: rails }, () => []);
+                    let rail = 0;
+                    let dir = 1;
+                    // Build a pattern of fence lengths
+                    for (let i = 0; i < len; i++) {
+                        fences[rail].push(null); // Placeholder
+                        rail += dir;
+                        if (rail === 0 || rail === rails - 1) dir *= -1;
+                    }
+                    
+                    // Fill fences with ciphertext
+                    let textIndex = 0;
+                    for (let r = 0; r < rails; r++) {
+                        for (let c = 0; c < fences[r].length; c++) {
+                            fences[r][c] = text[textIndex++];
+                        }
+                    }
+                    
+                    // Read off in zigzag
+                    let result = '';
+                    rail = 0;
+                    dir = 1;
+                    for (let i = 0; i < len; i++) {
+                        result += fences[rail].shift();
+                        rail += dir;
+                        if (rail === 0 || rail === rails - 1) dir *= -1;
+                    }
+                    return result;
+                }
             }
         });
     </script>
