@@ -8,8 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 2. Load CryptoJS Library (for Symmetric Ciphers) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <!-- 3. Load JSEncrypt Library (for Asymmetric Ciphers - RSA) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+    <!-- 3. JSEncrypt is no longer needed -->
     <style>
         /* Use Inter font */
         body {
@@ -55,14 +54,14 @@
     </script>
 </head>
 <body class="min-h-screen bg-gray-900 text-gray-200 p-4 md:p-8 dark">
-    <div class="w-full max-w-screen-2xl mx-auto">
+    <div class="w-full max-w-screen-xl mx-auto"> <!-- Changed max-width -->
         <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text pb-2">CryptoSuite</h1>
             <p class="text-lg text-gray-400">A Tool for Classical & Modern Cryptography</p>
         </header>
 
-        <!-- Main Dashboard Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Dashboard Layout - Changed to 2 columns -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- === COLUMN 1: CLASSICAL CIPHERS === -->
             <main class="bg-gray-800 shadow-2xl rounded-lg p-6 border border-gray-700/50">
@@ -158,10 +157,11 @@
                             </select>
                         </div>
                         <div>
-                            <label for="blockIV" class="block text-sm font-medium text-gray-300 mb-2">IV (32 hex)</label>
-                            <input type="text" id="blockIV" placeholder="e.g., 001122..." class="form-input-base">
+                            <label for="blockIV" class="block text-sm font-medium text-gray-300 mb-2">IV (Hex)</label>
+                            <!-- UPDATED Placeholder -->
+                            <input type="text" id="blockIV" placeholder="e.g., 00112233445566778899aabbccddeeff" class="form-input-base">
                             <p id="ivInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
-                                Required. 16 bytes (32 hex) to prevent patterns. e.g., '00...ff'
+                                Required. 16 bytes (32 hex) for AES. 8 bytes (16 hex) for DES.
                             </p>
                         </div>
                     </div>
@@ -184,7 +184,6 @@
                                 </svg>
                             </button>
                         </div>
-                        <p id="key-warning" class="text-xs text-yellow-400 mt-2 hidden">Note: Key is not used for SHA-256.</p>
                         <p id="symmetricKeyInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
                             Enter any string or password (e.g., 'mysecretkey123').
                         </p>
@@ -225,81 +224,8 @@
                 </div>
             </main>
 
-            <!-- === COLUMN 3: ASYMMETRIC CIPHERS (JSEncrypt) === -->
-            <main class="bg-gray-800 shadow-2xl rounded-lg p-6 border border-gray-700/50">
-                <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-6">
-                    <h2 class="text-2xl font-bold text-white">Asymmetric Ciphers</h2>
-                    <button id="infoBtnAsymmetric" class="text-blue-400 hover:text-blue-300 font-bold text-2xl" title="Learn More about this algorithm">(?)</button>
-                </div>
-
-                <div class="flex flex-col gap-4">
-                    <!-- Algorithm Select -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">1. Select Algorithm</label>
-                        <select id="asymmetricAlgorithm" class="form-input-base">
-                            <option value="rsa">RSA (Rivest–Shamir–Adleman)</option>
-                        </select>
-                    </div>
-
-                    <!-- Key Generation -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">2. Generate Keys</label>
-                        <div class="flex gap-4">
-                            <select id="rsaKeySize" class="form-input-base w-1/3">
-                                <option value="512">512 bit</option>
-                                <option value="1024">1024 bit</option>
-                                <option value="2048">2048 bit</option>
-                            </select>
-                            <button id="generateKeysBtn" class="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
-                                Generate New Keys
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Key Inputs -->
-                    <div>
-                        <label for="publicKey" class="block text-sm font-medium text-gray-300 mb-2">Public Key</label>
-                        <textarea id="publicKey" rows="4" class="form-input-base font-mono text-xs" placeholder="Will appear here after generation..."></textarea>
-                        <p id="publicKeyInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
-                            This key is for <strong>encrypting</strong> data. Share it with others.
-                        </p>
-                    </div>
-                    <div>
-                        <label for="privateKey" class="block text-sm font-medium text-gray-300 mb-2">Private Key</label>
-                        <textarea id="privateKey" rows="4" class="form-input-base font-mono text-xs" placeholder="Will appear here after generation..."></textarea>
-                        <p id="privateKeyInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
-                            This key is for <strong>decrypting</strong> data. Keep it secret!
-                        </p>
-                    </div>
-
-                    <!-- Text Input -->
-                    <div>
-                        <label for="rsaInputText" class="block text-sm font-medium text-gray-300 mb-2">3. Enter Text</label>
-                        <textarea id="rsaInputText" rows="4" class="form-input-base" placeholder="Enter text to encrypt/decrypt..."></textarea>
-                        <p id="rsaInputInfo" class="text-xs text-blue-300 bg-blue-900/50 border border-blue-700/50 rounded-md p-2 mt-2">
-                            Enter plaintext to encrypt, or the long base64 ciphertext to decrypt.
-                        </p>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 mt-1">
-                        <button id="rsaEncryptBtn" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
-                            Encrypt (with Public Key)
-                        </button>
-                        <button id="rsaDecryptBtn" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-150 transform hover:scale-[1.02]">
-                            Decrypt (with Private Key)
-                        </button>
-                    </div>
-
-                    <!-- Output -->
-                    <div>
-                        <label for="rsaOutputArea" class="block text-sm font-medium text-gray-300 mb-2">Result</label>
-                        <textarea id="rsaOutputArea" rows="4" class="form-input-base font-mono text-sm" readonly placeholder="Your output will appear here..."></textarea>
-                        <div id="rsaMessageArea" class="mt-2 text-sm h-10 p-2 rounded-md border border-transparent"></div>
-                    </div>
-                </div>
-            </main>
-
+            <!-- === COLUMN 3: ASYMMETRIC CIPHERS (REMOVED) === -->
+            
         </div>
     </div>
 
@@ -325,83 +251,377 @@
                 </div>
                 <div id="modalExtraInfo" class="hidden">
                     <h4 class="font-semibold text-lg text-blue-300">Modes of Operation</h4>
-                    <p id="modalExtraText" class="text-sm">Info about modes.</p>
+                    <p id="modalExtraText" class="text-sm whitespace-pre-wrap">Info about modes.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // === SCRIPT FOR SYMMETRIC CIPHERS (CryptoJS) ===
+        // === GLOBAL SCRIPT ===
         document.addEventListener('DOMContentLoaded', () => {
-            // Get DOM elements for Symmetric Ciphers
-            const algorithmSelect = document.getElementById('symmetricAlgorithm');
+
+            // --- Get All DOM elements ---
+            
+            // --- Classical ---
+            const classicalSelect = document.getElementById('classicalAlgorithm');
+            const classicalKeyInput = document.getElementById('classicalKey');
+            const classicalKeyInfo = document.getElementById('classicalKeyInfo');
+            const classicalInputText = document.getElementById('classicalInputText');
+            const classicalOutputArea = document.getElementById('classicalOutputArea');
+            const classicalEncryptBtn = document.getElementById('classicalEncryptBtn');
+            const classicalDecryptBtn = document.getElementById('classicalDecryptBtn');
+            const infoBtnClassical = document.getElementById('infoBtnClassical');
+
+            // --- Symmetric ---
+            const symmetricSelect = document.getElementById('symmetricAlgorithm');
             const secretKeyInput = document.getElementById('secretKey');
             const togglePassword = document.getElementById('togglePassword');
             const eyeOpen = document.getElementById('eye-open');
             const eyeClosed = document.getElementById('eye-closed');
-            const keyWarning = document.getElementById('key-warning');
-            const symmetricKeyInfo = document.getElementById('symmetricKeyInfo'); // New
-            const inputText = document.getElementById('inputText');
-            const outputArea = document.getElementById('outputArea');
-            const messageArea = document.getElementById('messageArea');
+            const symmetricKeyInfo = document.getElementById('symmetricKeyInfo');
+            const symmetricInputText = document.getElementById('inputText');
+            const symmetricOutputArea = document.getElementById('outputArea');
+            const symmetricMessageArea = document.getElementById('messageArea');
             const processBtn = document.getElementById('processBtn');
             const reverseBtn = document.getElementById('reverseBtn');
             const copyBtn = document.getElementById('copyBtn');
             const copySuccess = document.getElementById('copy-success');
-            
-            // New elements for block modes
             const blockOptions = document.getElementById('blockOptions');
             const blockModeSelect = document.getElementById('blockMode');
             const blockIVInput = document.getElementById('blockIV');
-            const ivInfo = document.getElementById('ivInfo'); // New
+            const ivInfo = document.getElementById('ivInfo');
+            const infoBtnSymmetric = document.getElementById('infoBtnSymmetric');
 
-            // --- Info Maps ---
-            const symmetricKeyInfoMap = {
-                'aes': "Enter any string or password (e.g., 'mysecretkey123').",
-                'des': "Enter any string (e.g., 'password'). Security depends on key strength.",
-                'rabbit': "Enter any string (e.g., 'a_very_fast_key').",
-                'sha256': "Key is not used for standard SHA-256.",
-                'hmac-sha256': "Enter a secret key used to sign the data (e.g., 'hmac_secret').",
-                'aes-hmac': "Enter a key for both encryption and authentication."
-            };
-            const ivInfoMap = {
-                'cbc': "Required. 16 bytes (32 hex) to prevent patterns. e.g., '00...ff'",
-                'ecb': "Not Used. This mode is insecure because it creates patterns.",
-                'cfb': "Required. 16 bytes (32 hex) to act as a 'stream'. e.g., '00...ff'",
-                'ofb': "Required. 16 bytes (32 hex) to act as a 'stream'. e.g., '00...ff'"
-            };
+            // --- Asymmetric (RSA) ---
+            // All elements removed
             
-            // --- Helper function to update block options visibility ---
-            function updateBlockOptionsVisibility() {
-                const alg = algorithmSelect.value;
-                const isBlockCipher = (alg === 'aes' || alg === 'des');
-                blockOptions.classList.toggle('hidden', !isBlockCipher);
+            // --- Info Modal ---
+            const modal = document.getElementById('infoModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalUseCase = document.getElementById('modalUseCase');
+            const modalSecurity = document.getElementById('modalSecurity');
+            const modalExtraInfo = document.getElementById('modalExtraInfo');
+            const modalExtraText = document.getElementById('modalExtraText');
+
+
+            // === SECTION 1: CLASSICAL CIPHERS ===
+            if (classicalSelect) {
+                const keyInfoMap = {
+                    'caesar': 'Enter a number (e.g., 3)',
+                    'atbash': 'No key required',
+                    'vigenere': 'Enter a keyword (e.g., "KEY")',
+                    'affine': 'Enter "a" and "b" as numbers, comma-separated (e.g., "5, 8"). "a" must be coprime to 26.',
+                    'playfair': 'Enter a keyword (e.g., "PLAYFAIR")',
+                    'railfence': 'Enter a number of rails (e.g., 3)',
+                    'hill': 'Enter 4 numbers for a 2x2 matrix (e.g., "4, 1, 3, 2"). Determinant must be coprime to 26.'
+                };
+                
+                // Set initial info on page load
+                classicalKeyInfo.textContent = keyInfoMap[classicalSelect.value];
+
+                // Update key info on algorithm change
+                classicalSelect.addEventListener('change', () => {
+                    const info = keyInfoMap[classicalSelect.value] || 'Enter key';
+                    classicalKeyInfo.textContent = info;
+                    classicalKeyInput.disabled = (classicalSelect.value === 'atbash');
+                    classicalKeyInput.placeholder = (classicalSelect.value === 'atbash') ? 'N/A' : 'Enter your key...';
+                });
+
+                // Process function
+                function processClassical(isEncrypt) {
+                    const algorithm = classicalSelect.value;
+                    const key = classicalKeyInput.value;
+                    const text = classicalInputText.value;
+                    let result = '';
+
+                    try {
+                        switch (algorithm) {
+                            case 'caesar':
+                                const shift = parseInt(key);
+                                if (isNaN(shift)) throw new Error('Key must be a number.');
+                                result = caesarCipher(text, shift, isEncrypt);
+                                break;
+                            case 'atbash':
+                                result = atbashCipher(text);
+                                break;
+                            case 'vigenere':
+                                if (!/^[a-zA-Z]+$/.test(key)) throw new Error('Key must be alphabetic.');
+                                result = vigenereCipher(text, key, isEncrypt);
+                                break;
+                            case 'affine':
+                                const parts = key.split(',').map(n => parseInt(n.trim()));
+                                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) throw new Error('Key must be "a, b" (e.g., "5, 8").');
+                                const [a, b] = parts;
+                                if (gcd(a, 26) !== 1) throw new Error('"a" must be coprime to 26 (e.g., 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25).');
+                                result = affineCipher(text, a, b, isEncrypt);
+                                break;
+                            case 'playfair':
+                                if (!key) throw new Error('Key is required.');
+                                result = playfairCipher(text, key, isEncrypt);
+                                break;
+                            case 'railfence':
+                                const rails = parseInt(key);
+                                if (isNaN(rails) || rails < 2) throw new Error('Key (rails) must be a number >= 2.');
+                                result = railFenceCipher(text, rails, isEncrypt);
+                                break;
+                            case 'hill':
+                                result = hillCipher(text, key, isEncrypt);
+                                break;
+                        }
+                        classicalOutputArea.value = result;
+                        classicalOutputArea.classList.remove('text-red-300');
+                    } catch (e) {
+                        classicalOutputArea.value = `Error: ${e.message}`;
+                        classicalOutputArea.classList.add('text-red-300');
+                    }
+                }
+
+                classicalEncryptBtn.addEventListener('click', () => processClassical(true));
+                classicalDecryptBtn.addEventListener('click', () => processClassical(false));
+
+                // --- Classical Cipher Logic ---
+                function mod(n, m) { return ((n % m) + m) % m; }
+                function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+                function modInverse(a, m) {
+                    a = mod(a, m);
+                    for (let x = 1; x < m; x++) {
+                        if (mod(a * x, m) === 1) return x;
+                    }
+                    throw new Error(`Modular inverse for ${a} and ${m} does not exist (not coprime).`);
+                }
+                function caesarCipher(text, shift, isEncrypt) {
+                    const s = isEncrypt ? parseInt(shift) : -parseInt(shift);
+                    return text.replace(/[a-zA-Z]/g, (char) => {
+                        const base = char <= 'Z' ? 65 : 97;
+                        return String.fromCharCode(mod(char.charCodeAt(0) - base + s, 26) + base);
+                    });
+                }
+                function atbashCipher(text) {
+                    return text.replace(/[a-zA-Z]/g, (char) => {
+                        const base = char <= 'Z' ? 65 : 97;
+                        return String.fromCharCode((25 - (char.charCodeAt(0) - base)) + base);
+                    });
+                }
+                function vigenereCipher(text, key, isEncrypt) {
+                    let keyIndex = 0;
+                    const keyUpper = key.toUpperCase();
+                    return text.replace(/[a-zA-Z]/g, (char) => {
+                        const base = char <= 'Z' ? 65 : 97;
+                        const keyChar = keyUpper[keyIndex % keyUpper.length];
+                        const shift = keyChar.charCodeAt(0) - 65;
+                        const finalShift = isEncrypt ? shift : -shift;
+                        keyIndex++;
+                        return String.fromCharCode(mod(char.charCodeAt(0) - base + finalShift, 26) + base);
+                    });
+                }
+                function affineCipher(text, a, b, isEncrypt) {
+                    const m = 26;
+                    let a_inv = -1;
+                    if (!isEncrypt) { a_inv = modInverse(a, m); }
+                    return text.replace(/[a-zA-Z]/g, (char) => {
+                        const base = char <= 'Z' ? 65 : 97;
+                        const x = char.charCodeAt(0) - base;
+                        let result;
+                        if (isEncrypt) {
+                            result = mod(a * x + b, m);
+                        } else {
+                            result = mod(a_inv * (x - b), m);
+                        }
+                        return String.fromCharCode(result + base);
+                    });
+                }
+                function playfairCipher(text, key, isEncrypt) {
+                    const matrix = generatePlayfairMatrix(key);
+                    const pos = Array(26).fill(null);
+                    for(let r=0; r<5; r++) {
+                        for(let c=0; c<5; c++) {
+                            pos[matrix[r][c].charCodeAt(0) - 65] = {r, c};
+                        }
+                    }
+                    let cleanText = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+                    let digraphs = [];
+                    if (isEncrypt) {
+                        for (let i = 0; i < cleanText.length; i += 2) {
+                            if (i + 1 === cleanText.length) { 
+                                digraphs.push(cleanText[i] + 'X');
+                                break;
+                            }
+                            if (cleanText[i] === cleanText[i + 1]) {
+                                digraphs.push(cleanText[i] + 'X');
+                                i--; 
+                            } else {
+                                digraphs.push(cleanText[i] + cleanText[i + 1]);
+                            }
+                        }
+                    } else { 
+                        for (let i = 0; i < cleanText.length; i += 2) {
+                            digraphs.push(cleanText[i] + cleanText[i + 1]);
+                        }
+                    }
+                    let result = '';
+                    const shift = isEncrypt ? 1 : -1;
+                    for (const pair of digraphs) {
+                        const p1 = pos[pair[0].charCodeAt(0) - 65];
+                        const p2 = pos[pair[1].charCodeAt(0) - 65];
+                        if (p1.r === p2.r) { 
+                            result += matrix[p1.r][mod(p1.c + shift, 5)];
+                            result += matrix[p2.r][mod(p2.c + shift, 5)];
+                        } else if (p1.c === p2.c) {
+                            result += matrix[mod(p1.r + shift, 5)][p1.c];
+                            result += matrix[mod(p2.r + shift, 5)][p2.c];
+                        } else {
+                            result += matrix[p1.r][p2.c];
+                            result += matrix[p2.r][p1.c];
+                        }
+                    }
+                    return result;
+                }
+                function generatePlayfairMatrix(key) {
+                    const keyClean = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+                    const set = new Set(keyClean);
+                    const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // No J
+                    for (const char of alphabet) { set.add(char); }
+                    const chars = Array.from(set);
+                    const matrix = [];
+                    for (let i = 0; i < 5; i++) {
+                        matrix.push(chars.slice(i * 5, i * 5 + 5));
+                    }
+                    return matrix;
+                }
+                function railFenceCipher(text, rails, isEncrypt) {
+                    if (isEncrypt) {
+                        const fences = Array.from({ length: rails }, () => []);
+                        let rail = 0, dir = 1;
+                        for (const char of text) {
+                            fences[rail].push(char);
+                            rail += dir;
+                            if (rail === 0 || rail === rails - 1) { dir *= -1; }
+                        }
+                        return fences.map(fence => fence.join('')).join('');
+                    } else { 
+                        const len = text.length;
+                        const fences = Array.from({ length: rails }, () => []);
+                        let rail = 0, dir = 1;
+                        for (let i = 0; i < len; i++) {
+                            fences[rail].push(null); 
+                            rail += dir;
+                            if (rail === 0 || rail === rails - 1) dir *= -1;
+                        }
+                        let textIndex = 0;
+                        for (let r = 0; r < rails; r++) {
+                            for (let c = 0; c < fences[r].length; c++) {
+                                fences[r][c] = text[textIndex++];
+                            }
+                        }
+                        let result = '';
+                        rail = 0; dir = 1;
+                        for (let i = 0; i < len; i++) {
+                            result += fences[rail].shift();
+                            rail += dir;
+                            if (rail === 0 || rail === rails - 1) dir *= -1;
+                        }
+                        return result;
+                    }
+                }
+                function hillCipher(text, key, isEncrypt) {
+                    const nums = key.split(',').map(n => parseInt(n.trim()));
+                    if (nums.length !== 4 || nums.some(isNaN)) {
+                        throw new Error('Key must be 4 numbers for a 2x2 matrix (e.g., "4, 1, 3, 2").');
+                    }
+                    const matrix = [[nums[0], nums[1]], [nums[2], nums[3]]];
+                    let det = mod(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0], 26);
+                    if (gcd(det, 26) !== 1) {
+                        throw new Error(`Invalid key: Determinant (${det}) is not coprime to 26.`);
+                    }
+                    let procMatrix = matrix;
+                    if (!isEncrypt) {
+                        const detInv = modInverse(det, 26);
+                        procMatrix = [
+                            [mod(matrix[1][1] * detInv, 26), mod(-matrix[0][1] * detInv, 26)],
+                            [mod(-matrix[1][0] * detInv, 26), mod(matrix[0][0] * detInv, 26)]
+                        ];
+                    }
+                    let cleanText = text.toUpperCase().replace(/[^A-Z]/g, '');
+                    if (cleanText.length % 2 !== 0) {
+                        cleanText += 'X'; // Pad with 'X'
+                    }
+                    let result = '';
+                    for (let i = 0; i < cleanText.length; i += 2) {
+                        const p1 = cleanText.charCodeAt(i) - 65;
+                        const p2 = cleanText.charCodeAt(i + 1) - 65;
+                        const c1 = mod(procMatrix[0][0] * p1 + procMatrix[0][1] * p2, 26);
+                        const c2 = mod(procMatrix[1][0] * p1 + procMatrix[1][1] * p2, 26);
+                        result += String.fromCharCode(c1 + 65);
+                        result += String.fromCharCode(c2 + 65);
+                    }
+                    return result;
+                }
             }
 
-            // --- Event Listeners for Symmetric Ciphers ---
-            if (algorithmSelect) {
-                // --- THIS IS THE FIX ---
-                // Run all checks on page load
-                const initialAlg = algorithmSelect.value;
-                updateBlockOptionsVisibility(); // Show/hide block options
-                keyWarning.classList.toggle('hidden', initialAlg !== 'sha256'); // Show/hide key warning
-                symmetricKeyInfo.textContent = symmetricKeyInfoMap[initialAlg]; // Set key info
-                ivInfo.textContent = ivInfoMap[blockModeSelect.value]; // Set IV info
-                // --- END OF FIX ---
-                
-                // Show/hide key warning & block options on CHANGE
-                algorithmSelect.addEventListener('change', () => {
-                    const alg = algorithmSelect.value;
-                    keyWarning.classList.toggle('hidden', alg !== 'sha256');
-                    symmetricKeyInfo.textContent = symmetricKeyInfoMap[alg] || "Enter a secret key.";
-                    updateBlockOptionsVisibility(); // Call the helper function
-                });
 
-                // Update IV info on mode change
-                blockModeSelect.addEventListener('change', () => {
-                    ivInfo.textContent = ivInfoMap[blockModeSelect.value] || "Enter a 16-byte (32 hex) value.";
-                });
+            // === SECTION 2: SYMMETRIC CIPHERS ===
+            if (symmetricSelect) {
+                // --- Info Maps ---
+                const symmetricKeyInfoMap = {
+                    'aes': "Enter any string or password (e.g., 'mysecretkey123').",
+                    'des': "Enter any string (e.g., 'password'). Security depends on key strength.",
+                    'rabbit': "Enter any string (e.g., 'a_very_fast_key').",
+                    'sha256': "Key is not used for standard SHA-256.",
+                    'hmac-sha256': "Enter a secret key used to sign the data (e.g., 'hmac_secret').",
+                    'aes-hmac': "Enter a key for both encryption and authentication."
+                };
+                const ivInfoMap = {
+                    'cbc': "Required for security. 16 bytes (32 hex) for AES / 8 bytes (16 hex) for DES.",
+                    'ecb': "Not Used. This mode is insecure because it creates patterns.",
+                    'cfb': "Required. 16 bytes (32 hex) for AES / 8 bytes (16 hex) for DES.",
+                    'ofb': "Required. 16 bytes (32 hex) for AES / 8 bytes (16 hex) for DES."
+                };
+                const ivLenMap = { 'aes': 16, 'des': 8 };
+
+                // --- Helper function to update block options ---
+                function updateSymmetricUI() {
+                    const alg = symmetricSelect.value;
+                    const isBlockCipher = (alg === 'aes' || alg === 'des');
+                    
+                    // Show/hide block options
+                    blockOptions.classList.toggle('hidden', !isBlockCipher);
+                    
+                    // Update key info
+                    symmetricKeyInfo.textContent = symmetricKeyInfoMap[alg] || "Enter a secret key.";
+                    symmetricKeyInfo.classList.toggle('hidden', alg === 'sha256');
+                    secretKeyInput.parentElement.classList.toggle('hidden', alg === 'sha256');
+
+                    // Update IV info
+                    if (isBlockCipher) {
+                        const mode = blockModeSelect.value;
+                        const len = ivLenMap[alg];
+                        ivInfo.textContent = ivInfoMap[mode] || `Required. ${len} bytes (${len*2} hex).`;
+                        blockIVInput.labels[0].textContent = `IV (${len*2} hex)`;
+                        blockIVInput.parentElement.classList.toggle('hidden', mode === 'ecb');
+
+                        // --- NEW: Update placeholder ---
+                        if (alg === 'aes') {
+                            blockIVInput.placeholder = 'e.g., 00112233445566778899aabbccddeeff';
+                        } else if (alg === 'des') {
+                            blockIVInput.placeholder = 'e.g., 0011223344556677';
+                        }
+                        // --- End of new code ---
+                    }
+                }
+
+                // --- Event Listeners for Symmetric Ciphers ---
+                
+                // Run all checks on page load
+                updateSymmetricUI(); 
+                
+                // Update on Algorithm change
+                symmetricSelect.addEventListener('change', updateSymmetricUI);
+
+                // Update on Mode change
+                blockModeSelect.addEventListener('change', updateSymmetricUI);
 
                 // Toggle password visibility
                 togglePassword.addEventListener('click', () => {
@@ -413,9 +633,9 @@
 
                 // Copy to clipboard
                 copyBtn.addEventListener('click', () => {
-                    if (!outputArea.value) return;
+                    if (!symmetricOutputArea.value) return;
                     try {
-                        outputArea.select();
+                        symmetricOutputArea.select();
                         document.execCommand('copy');
                         copySuccess.classList.remove('hidden');
                         setTimeout(() => copySuccess.classList.add('hidden'), 2000);
@@ -424,7 +644,7 @@
 
                 // Helper to get crypto options
                 function getCryptoOptions(isDecrypt = false) {
-                    const alg = algorithmSelect.value;
+                    const alg = symmetricSelect.value;
                     if (alg !== 'aes' && alg !== 'des') return {};
 
                     let options = {};
@@ -437,22 +657,27 @@
                     else options.mode = CryptoJS.mode.CBC; // Default
                     
                     // Get IV
-                    if (blockIVInput.value) {
-                        try {
-                            options.iv = CryptoJS.enc.Hex.parse(blockIVInput.value);
-                            let expectedBytes = (alg === 'des') ? 8 : 16;
-                            if (options.iv.sigBytes !== expectedBytes) {
-                                if (!isDecrypt) throw new Error(`IV must be ${expectedBytes} bytes (${expectedBytes*2} hex characters).`);
+                    if (mode !== 'ECB') {
+                        if (blockIVInput.value) {
+                            // Check for hex characters
+                            if (!/^[0-9a-fA-F]*$/.test(blockIVInput.value)) {
+                                throw new Error('Invalid IV format. Must be hex characters (0-9, a-f).');
                             }
-                        } catch(e) {
-                            if (!isDecrypt) throw new Error(`Invalid IV format. Must be hex.`);
+                            
+                            try {
+                                options.iv = CryptoJS.enc.Hex.parse(blockIVInput.value);
+                                let expectedBytes = ivLenMap[alg];
+                                if (options.iv.sigBytes !== expectedBytes) {
+                                    throw new Error(`Invalid IV length. ${alg.toUpperCase()} requires ${expectedBytes} bytes (${expectedBytes*2} hex).`);
+                                }
+                            } catch(e) {
+                                if (e instanceof Error) throw e; // re-throw our custom errors
+                                throw new Error(`Invalid IV hex string.`);
+                            }
+                        } else {
+                            throw new Error('IV is required for this mode. (ECB does not use one).');
                         }
-                    } else if (mode !== 'ECB') {
-                        throw new Error('IV is required for this mode. (ECB does not use one).');
                     }
-                    
-                    // ECB does not use an IV
-                    if (mode === 'ECB') delete options.iv;
                     
                     // Set padding
                     options.padding = CryptoJS.pad.Pkcs7;
@@ -462,48 +687,54 @@
 
                 // Process Button Click
                 processBtn.addEventListener('click', () => {
-                    const algorithm = algorithmSelect.value;
+                    const algorithm = symmetricSelect.value;
                     const key = secretKeyInput.value;
-                    const text = inputText.value;
+                    const text = symmetricInputText.value;
 
-                    clearMessage();
-                    if (!text) { showMessage('Input text cannot be empty.', 'error'); return; }
-                    if (algorithm !== 'sha256' && !key) { showMessage('Secret key is required for this algorithm.', 'error'); return; }
+                    clearSymmetricMessage();
+                    if (!text) { showSymmetricMessage('Input text cannot be empty.', 'error'); return; }
+                    if (algorithm !== 'sha256' && !key) { showSymmetricMessage('Secret key is required for this algorithm.', 'error'); return; }
 
                     try {
                         let result = '';
                         switch (algorithm) {
                             case 'aes':
                                 result = CryptoJS.AES.encrypt(text, key, getCryptoOptions()).toString();
-                                showMessage('AES Encrypted successfully.', 'success');
+                                showSymmetricMessage('AES Encrypted successfully.', 'success');
                                 break;
                             case 'des':
                                 result = CryptoJS.DES.encrypt(text, key, getCryptoOptions()).toString();
-                                showMessage('DES Encrypted successfully.', 'success');
+                                showSymmetricMessage('DES Encrypted successfully.', 'success');
                                 break;
-                            case 'rabbit': result = CryptoJS.Rabbit.encrypt(text, key).toString(); showMessage('Rabbit Encrypted successfully.', 'success'); break;
-                            case 'sha256': result = CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex); showMessage('SHA-256 Hash generated.', 'success'); break;
-                            case 'hmac-sha256': result = CryptoJS.HmacSHA256(text, key).toString(CryptoJS.enc.Hex); showMessage('HMAC-SHA256 generated.', 'success'); break;
+                            case 'rabbit': result = CryptoJS.Rabbit.encrypt(text, key).toString(); showSymmetricMessage('Rabbit Encrypted successfully.', 'success'); break;
+                            case 'sha256': result = CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex); showSymmetricMessage('SHA-256 Hash generated.', 'success'); break;
+                            case 'hmac-sha256': result = CryptoJS.HmacSHA256(text, key).toString(CryptoJS.enc.Hex); showSymmetricMessage('HMAC-SHA256 generated.', 'success'); break;
                             case 'aes-hmac':
-                                const ciphertext = CryptoJS.AES.encrypt(text, key).toString();
-                                const mac = CryptoJS.HmacSHA256(ciphertext, key).toString(CryptoJS.enc.Hex);
-                                result = JSON.stringify({ ciphertext, mac }, null, 2);
-                                showMessage('Authenticated encryption complete.', 'success');
+                                // Using default CBC and a random IV for simplicity in this combined mode
+                                const iv = CryptoJS.lib.WordArray.random(16);
+                                const ciphertext = CryptoJS.AES.encrypt(text, key, { iv: iv }).toString();
+                                const mac = CryptoJS.HmacSHA256(iv.toString(CryptoJS.enc.Hex) + ciphertext, key).toString(CryptoJS.enc.Hex);
+                                result = JSON.stringify({ 
+                                    iv: iv.toString(CryptoJS.enc.Hex), 
+                                    ciphertext, 
+                                    mac 
+                                }, null, 2);
+                                showSymmetricMessage('Authenticated encryption complete.', 'success');
                                 break;
                         }
-                        outputArea.value = result;
-                    } catch (e) { showMessage(`Error: ${e.message}`, 'error'); }
+                        symmetricOutputArea.value = result;
+                    } catch (e) { showSymmetricMessage(`Error: ${e.message}`, 'error'); }
                 });
 
                 // Reverse Button Click
                 reverseBtn.addEventListener('click', () => {
-                    const algorithm = algorithmSelect.value;
+                    const algorithm = symmetricSelect.value;
                     const key = secretKeyInput.value;
-                    const text = inputText.value; 
+                    const text = symmetricInputText.value; 
 
-                    clearMessage();
-                    if (!text) { showMessage('Input text to reverse/verify cannot be empty.', 'error'); return; }
-                    if (algorithm !== 'sha256' && !key) { showMessage('Secret key is required for this algorithm.', 'error'); return; }
+                    clearSymmetricMessage();
+                    if (!text) { showSymmetricMessage('Input text to reverse/verify cannot be empty.', 'error'); return; }
+                    if (algorithm !== 'sha256' && !key) { showSymmetricMessage('Secret key is required for this algorithm.', 'error'); return; }
 
                     try {
                         let result = '';
@@ -514,541 +745,163 @@
                                 decryptedText = CryptoJS.AES.decrypt(text, key, getCryptoOptions(true)).toString(CryptoJS.enc.Utf8);
                                 if (!decryptedText) { throw new Error('Decryption failed. Wrong key, IV, or corrupted data.'); }
                                 result = decryptedText;
-                                showMessage('Decrypted successfully.', 'success');
+                                showSymmetricMessage('Decrypted successfully.', 'success');
                                 break;
                             case 'des':
                                 decryptedText = CryptoJS.DES.decrypt(text, key, getCryptoOptions(true)).toString(CryptoJS.enc.Utf8);
                                 if (!decryptedText) { throw new Error('Decryption failed. Wrong key, IV, or corrupted data.'); }
                                 result = decryptedText;
-                                showMessage('Decrypted successfully.', 'success');
+                                showSymmetricMessage('Decrypted successfully.', 'success');
                                 break;
                             case 'rabbit':
                                 decryptedText = CryptoJS.Rabbit.decrypt(text, key).toString(CryptoJS.enc.Utf8);
                                 if (!decryptedText) { throw new Error('Decryption failed. Wrong key or corrupted data.'); }
                                 result = decryptedText;
-                                showMessage('Decrypted successfully.', 'success');
+                                showSymmetricMessage('Decrypted successfully.', 'success');
                                 break;
                             case 'sha256':
                                 result = 'Hashing is one-way. It cannot be decrypted.\n\nTo VERIFY, run "Process" on your original text and compare the hashes.';
-                                showMessage('Verification Info', 'info');
+                                showSymmetricMessage('Verification Info', 'info');
                                 break;
                             case 'hmac-sha256':
                                 result = 'HMAC is one-way. It cannot be decrypted.\n\nTo VERIFY, run "Process" on your original text with the key and compare the MACs.';
-                                showMessage('Verification Info', 'info');
+                                showSymmetricMessage('Verification Info', 'info');
                                 break;
                             case 'aes-hmac':
                                 let inputJSON;
                                 try { inputJSON = JSON.parse(text); } catch (e) { throw new Error('Invalid JSON input.'); }
-                                if (!inputJSON.ciphertext || !inputJSON.mac) { throw new Error('Invalid JSON format.'); }
+                                if (!inputJSON.ciphertext || !inputJSON.mac || !inputJSON.iv) { throw new Error('Invalid JSON format. Must include iv, ciphertext, and mac.'); }
                                 
-                                const calculatedMac = CryptoJS.HmacSHA256(inputJSON.ciphertext, key).toString(CryptoJS.enc.Hex);
+                                const calculatedMac = CryptoJS.HmacSHA256(inputJSON.iv + inputJSON.ciphertext, key).toString(CryptoJS.enc.Hex);
                                 if (calculatedMac !== inputJSON.mac) {
-                                    showMessage('VERIFICATION FAILED! Data tampered or wrong key.', 'error');
+                                    showSymmetricMessage('VERIFICATION FAILED! Data tampered or wrong key.', 'error');
                                     result = '--- ERROR: MAC MISMATCH ---';
                                     break;
                                 }
                                 
-                                const authDecrypted = CryptoJS.AES.decrypt(inputJSON.ciphertext, key);
+                                const authDecrypted = CryptoJS.AES.decrypt(inputJSON.ciphertext, key, {
+                                    iv: CryptoJS.enc.Hex.parse(inputJSON.iv)
+                                });
                                 const authDecryptedText = authDecrypted.toString(CryptoJS.enc.Utf8);
                                 if (!authDecryptedText) { throw new Error('Verification passed, but decryption failed.'); }
                                 
                                 result = authDecryptedText;
-                                showMessage('Verification Succeeded. Decrypted.', 'success');
+                                showSymmetricMessage('Verification Succeeded. Decrypted.', 'success');
                                 break;
                         }
-                        outputArea.value = result;
-                    } catch (e) { showMessage(`Error: ${e.message}`, 'error'); }
+                        symmetricOutputArea.value = result;
+                    } catch (e) { showSymmetricMessage(`Error: ${e.message}`, 'error'); }
                 });
-            }
-            // --- Helper Functions for Symmetric Ciphers ---
-            function showMessage(message, type = 'info') {
-                messageArea.textContent = message;
-                messageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border'; // Reset classes
-                if (type === 'success') { messageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50'); }
-                else if (type === 'error') { messageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50'); }
-                else { messageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50'); }
-            }
-            function clearMessage() {
-                messageArea.textContent = '';
-                messageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border border-transparent';
-            }
-        });
 
-        // === SCRIPT FOR CLASSICAL CIPHERS ===
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get DOM elements for Classical Ciphers
-            const select = document.getElementById('classicalAlgorithm');
-            const keyInput = document.getElementById('classicalKey');
-            const keyInfo = document.getElementById('classicalKeyInfo');
-            const inputText = document.getElementById('classicalInputText');
-            const outputArea = document.getElementById('classicalOutputArea');
-            const encryptBtn = document.getElementById('classicalEncryptBtn');
-            const decryptBtn = document.getElementById('classicalDecryptBtn');
-
-            const keyInfoMap = {
-                'caesar': 'Enter a number (e.g., 3)',
-                'atbash': 'No key required',
-                'vigenere': 'Enter a keyword (e.g., "KEY")',
-                'affine': 'Enter "a" and "b" as numbers, comma-separated (e.g., "5, 8"). "a" must be coprime to 26.',
-                'playfair': 'Enter a keyword (e.g., "PLAYFAIR")',
-                'railfence': 'Enter a number of rails (e.g., 3)',
-                'hill': 'Enter 4 numbers for a 2x2 matrix (e.g., "4, 1, 3, 2"). Determinant must be coprime to 26.'
-            };
+                // --- Helper Functions for Symmetric Ciphers ---
+                function showSymmetricMessage(message, type = 'info') {
+                    symmetricMessageArea.textContent = message;
+                    symmetricMessageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border'; // Reset classes
+                    if (type === 'success') { symmetricMessageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50'); }
+                    else if (type === 'error') { symmetricMessageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50'); }
+                    else { symmetricMessageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50'); }
+                }
+                function clearSymmetricMessage() {
+                    symmetricMessageArea.textContent = '';
+                    symmetricMessageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border border-transparent';
+                }
+            }
             
-            // Set initial info on page load
-            if(select) {
-                keyInfo.textContent = keyInfoMap[select.value];
-            }
 
-            // Update key info on algorithm change
-            select.addEventListener('change', () => {
-                const info = keyInfoMap[select.value] || 'Enter key';
-                keyInfo.textContent = info;
-                keyInput.disabled = (select.value === 'atbash');
-                keyInput.placeholder = (select.value === 'atbash') ? 'N/A' : 'Enter your key...';
-            });
-
-            // Process function
-            function processClassical(isEncrypt) {
-                const algorithm = select.value;
-                const key = keyInput.value;
-                const text = inputText.value;
-                let result = '';
-
-                try {
-                    switch (algorithm) {
-                        case 'caesar':
-                            const shift = parseInt(key);
-                            if (isNaN(shift)) throw new Error('Key must be a number.');
-                            result = caesarCipher(text, shift, isEncrypt);
-                            break;
-                        case 'atbash':
-                            result = atbashCipher(text);
-                            break;
-                        case 'vigenere':
-                            if (!/^[a-zA-Z]+$/.test(key)) throw new Error('Key must be alphabetic.');
-                            result = vigenereCipher(text, key, isEncrypt);
-                            break;
-                        case 'affine':
-                            const parts = key.split(',').map(n => parseInt(n.trim()));
-                            if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) throw new Error('Key must be "a, b" (e.g., "5, 8").');
-                            const [a, b] = parts;
-                            if (gcd(a, 26) !== 1) throw new Error('"a" must be coprime to 26 (e.g., 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25).');
-                            result = affineCipher(text, a, b, isEncrypt);
-                            break;
-                        case 'playfair':
-                            if (!key) throw new Error('Key is required.');
-                            result = playfairCipher(text, key, isEncrypt);
-                            break;
-                        case 'railfence':
-                            const rails = parseInt(key);
-                            if (isNaN(rails) || rails < 2) throw new Error('Key (rails) must be a number >= 2.');
-                            result = railFenceCipher(text, rails, isEncrypt);
-                            break;
-                        case 'hill':
-                            result = hillCipher(text, key, isEncrypt);
-                            break;
-                    }
-                    outputArea.value = result;
-                    outputArea.classList.remove('text-red-300');
-                } catch (e) {
-                    outputArea.value = `Error: ${e.message}`;
-                    outputArea.classList.add('text-red-300');
-                }
-            }
-
-            encryptBtn.addEventListener('click', () => processClassical(true));
-            decryptBtn.addEventListener('click', () => processClassical(false));
-
-            // --- Classical Cipher Logic ---
-            // Helper: Modulo that handles negative numbers
-            function mod(n, m) { return ((n % m) + m) % m; }
-            // Helper: GCD
-            function gcd(a, b) { return b === 0 ? a : gcd(mod(a, b), b); }
-            // Helper: Modular Inverse
-            function modInverse(a, m) {
-                a = mod(a, m);
-                for (let x = 1; x < m; x++) {
-                    if (mod(a * x, m) === 1) return x;
-                }
-                throw new Error(`Modular inverse for ${a} and ${m} does not exist (not coprime).`);
-            }
-            // 1. Caesar Cipher
-            function caesarCipher(text, shift, isEncrypt) {
-                const s = isEncrypt ? parseInt(shift) : -parseInt(shift);
-                return text.replace(/[a-zA-Z]/g, (char) => {
-                    const base = char <= 'Z' ? 65 : 97;
-                    return String.fromCharCode(mod(char.charCodeAt(0) - base + s, 26) + base);
-                });
-            }
-            // 2. Atbash Cipher
-            function atbashCipher(text) {
-                return text.replace(/[a-zA-Z]/g, (char) => {
-                    const base = char <= 'Z' ? 65 : 97;
-                    return String.fromCharCode((25 - (char.charCodeAt(0) - base)) + base);
-                });
-            }
-            // 3. Vigenere Cipher
-            function vigenereCipher(text, key, isEncrypt) {
-                let keyIndex = 0;
-                const keyUpper = key.toUpperCase();
-                return text.replace(/[a-zA-Z]/g, (char) => {
-                    const base = char <= 'Z' ? 65 : 97;
-                    const keyChar = keyUpper[keyIndex % keyUpper.length];
-                    const shift = keyChar.charCodeAt(0) - 65;
-                    const finalShift = isEncrypt ? shift : -shift;
-                    keyIndex++; // Only increment for alphabetic characters
-                    return String.fromCharCode(mod(char.charCodeAt(0) - base + finalShift, 26) + base);
-                });
-            }
-            // 4. Affine Cipher
-            function affineCipher(text, a, b, isEncrypt) {
-                const m = 26;
-                let a_inv = -1;
-                if (!isEncrypt) {
-                    a_inv = modInverse(a, m);
-                }
-                return text.replace(/[a-zA-Z]/g, (char) => {
-                    const base = char <= 'Z' ? 65 : 97;
-                    const x = char.charCodeAt(0) - base;
-                    let result;
-                    if (isEncrypt) {
-                        result = mod(a * x + b, m);
-                    } else {
-                        result = mod(a_inv * (x - b), m);
-                    }
-                    return String.fromCharCode(result + base);
-                });
-            }
-            // 5. Playfair Cipher
-            function playfairCipher(text, key, isEncrypt) {
-                const matrix = generatePlayfairMatrix(key);
-                const pos = Array(26).fill(null); 
-                for(let r=0; r<5; r++) {
-                    for(let c=0; c<5; c++) {
-                        pos[matrix[r][c].charCodeAt(0) - 65] = {r, c};
-                    }
-                }
-                let cleanText = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
-                let digraphs = [];
-                if (isEncrypt) {
-                    for (let i = 0; i < cleanText.length; i += 2) {
-                        if (i + 1 === cleanText.length) { 
-                            digraphs.push(cleanText[i] + 'X');
-                            break;
-                        }
-                        if (cleanText[i] === cleanText[i + 1]) {
-                            digraphs.push(cleanText[i] + 'X');
-                            i--; 
-                        } else {
-                            digraphs.push(cleanText[i] + cleanText[i + 1]);
-                        }
-                    }
-                } else { 
-                    for (let i = 0; i < cleanText.length; i += 2) {
-                        digraphs.push(cleanText[i] + cleanText[i + 1]);
-                    }
-                }
-                let result = '';
-                const shift = isEncrypt ? 1 : -1;
-                for (const pair of digraphs) {
-                    const p1 = pos[pair[0].charCodeAt(0) - 65];
-                    const p2 = pos[pair[1].charCodeAt(0) - 65];
-                    if (p1.r === p2.r) { 
-                        result += matrix[p1.r][mod(p1.c + shift, 5)];
-                        result += matrix[p2.r][mod(p2.c + shift, 5)];
-                    } else if (p1.c === p2.c) {
-                        result += matrix[mod(p1.r + shift, 5)][p1.c];
-                        result += matrix[mod(p2.r + shift, 5)][p2.c];
-                    } else {
-                        result += matrix[p1.r][p2.c];
-                        result += matrix[p2.r][p1.c];
-                    }
-                }
-                return result;
-            }
-            function generatePlayfairMatrix(key) {
-                const keyClean = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
-                const set = new Set(keyClean);
-                const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // No J
-                for (const char of alphabet) {
-                    set.add(char);
-                }
-                const chars = Array.from(set);
-                const matrix = [];
-                for (let i = 0; i < 5; i++) {
-                    matrix.push(chars.slice(i * 5, i * 5 + 5));
-                }
-                return matrix;
-            }
-            // 6. Rail Fence Cipher
-            function railFenceCipher(text, rails, isEncrypt) {
-                if (isEncrypt) {
-                    const fences = Array.from({ length: rails }, () => []);
-                    let rail = 0;
-                    let dir = 1;
-                    for (const char of text) {
-                        fences[rail].push(char);
-                        rail += dir;
-                        if (rail === 0 || rail === rails - 1) {
-                            dir *= -1; 
-                        }
-                    }
-                    return fences.map(fence => fence.join('')).join('');
-                } else { 
-                    const len = text.length;
-                    const fences = Array.from({ length: rails }, () => []);
-                    let rail = 0;
-                    let dir = 1;
-                    for (let i = 0; i < len; i++) {
-                        fences[rail].push(null); 
-                        rail += dir;
-                        if (rail === 0 || rail === rails - 1) dir *= -1;
-                    }
-                    let textIndex = 0;
-                    for (let r = 0; r < rails; r++) {
-                        for (let c = 0; c < fences[r].length; c++) {
-                            fences[r][c] = text[textIndex++];
-                        }
-                    }
-                    let result = '';
-                    rail = 0;
-                    dir = 1;
-                    for (let i = 0; i < len; i++) {
-                        result += fences[rail].shift();
-                        rail += dir;
-                        if (rail === 0 || rail === rails - 1) dir *= -1;
-                    }
-                    return result;
-                }
-            }
-            // 7. Hill Cipher
-            function hillCipher(text, key, isEncrypt) {
-                const nums = key.split(',').map(n => parseInt(n.trim()));
-                if (nums.length !== 4 || nums.some(isNaN)) {
-                    throw new Error('Key must be 4 numbers for a 2x2 matrix (e.g., "4, 1, 3, 2").');
-                }
-                const matrix = [[nums[0], nums[1]], [nums[2], nums[3]]];
-                let det = mod(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0], 26);
-                if (gcd(det, 26) !== 1) {
-                    throw new Error(`Invalid key: Determinant (${det}) is not coprime to 26.`);
-                }
-                let procMatrix = matrix;
-                if (!isEncrypt) {
-                    const detInv = modInverse(det, 26);
-                    procMatrix = [
-                        [mod(matrix[1][1] * detInv, 26), mod(-matrix[0][1] * detInv, 26)],
-                        [mod(-matrix[1][0] * detInv, 26), mod(matrix[0][0] * detInv, 26)]
-                    ];
-                }
-                let cleanText = text.toUpperCase().replace(/[^A-Z]/g, '');
-                if (cleanText.length % 2 !== 0) {
-                    cleanText += 'X'; // Pad with 'X'
-                }
-                let result = '';
-                for (let i = 0; i < cleanText.length; i += 2) {
-                    const p1 = cleanText.charCodeAt(i) - 65;
-                    const p2 = cleanText.charCodeAt(i + 1) - 65;
-                    const c1 = mod(procMatrix[0][0] * p1 + procMatrix[0][1] * p2, 26);
-                    const c2 = mod(procMatrix[1][0] * p1 + procMatrix[1][1] * p2, 26);
-                    result += String.fromCharCode(c1 + 65);
-                    result += String.fromCharCode(c2 + 65);
-                }
-                return result;
-            }
-        });
-
-        // === SCRIPT FOR ASYMMETRIC CIPHERS (JSEncrypt) ===
-        document.addEventListener('DOMContentLoaded', () => {
-            const rsaKeySizeSelect = document.getElementById('rsaKeySize');
-            const generateKeysBtn = document.getElementById('generateKeysBtn');
-            const publicKeyArea = document.getElementById('publicKey');
-            const privateKeyArea = document.getElementById('privateKey');
-            const rsaInputText = document.getElementById('rsaInputText');
-            const rsaOutputArea = document.getElementById('rsaOutputArea');
-            const rsaEncryptBtn = document.getElementById('rsaEncryptBtn');
-            const rsaDecryptBtn = document.getElementById('rsaDecryptBtn');
-            const rsaMessageArea = document.getElementById('rsaMessageArea');
-
-            generateKeysBtn.addEventListener('click', () => {
-                const keySize = parseInt(rsaKeySizeSelect.value, 10);
-                generateKeysBtn.textContent = 'Generating...';
-                generateKeysBtn.disabled = true;
-                
-                // Use setTimeout to allow UI to update before heavy computation
-                setTimeout(() => {
-                    try {
-                        const crypt = new JSEncrypt({ default_key_size: keySize });
-                        crypt.getKey(); // This generates the key pair
-                        publicKeyArea.value = crypt.getPublicKey();
-                        privateKeyArea.value = crypt.getPrivateKey();
-                        showMessage('New keys generated successfully.', 'success');
-                    } catch (e) {
-                        showMessage(`Error: ${e.message}`, 'error');
-                    } finally {
-                        generateKeysBtn.textContent = 'Generate New Keys';
-                        generateKeysBtn.disabled = false;
-                    }
-                }, 50);
-            });
-
-            rsaEncryptBtn.addEventListener('click', () => {
-                try {
-                    clearMessage();
-                    const publicKey = publicKeyArea.value;
-                    const text = rsaInputText.value;
-                    if (!publicKey || !text) {
-                        throw new Error('Public key and input text are required.');
-                    }
-                    const crypt = new JSEncrypt();
-                    crypt.setPublicKey(publicKey);
-                    const encrypted = crypt.encrypt(text);
-                    if (!encrypted) {
-                        throw new Error('Encryption failed. Key or text may be invalid.');
-                    }
-                    rsaOutputArea.value = encrypted;
-                    showMessage('Encrypted successfully with public key.', 'success');
-                } catch(e) { showMessage(`Error: ${e.message}`, 'error'); }
-            });
-
-            rsaDecryptBtn.addEventListener('click', () => {
-                try {
-                    clearMessage();
-                    const privateKey = privateKeyArea.value;
-                    const text = rsaInputText.value; // Assume input text is ciphertext
-                    if (!privateKey || !text) {
-                        throw new Error('Private key and ciphertext are required.');
-                    }
-                    const crypt = new JSEncrypt();
-                    crypt.setPrivateKey(privateKey);
-                    const decrypted = crypt.decrypt(text);
-                    if (decrypted === false) {
-                        throw new Error('Decryption failed. Wrong key or corrupted data.');
-                    }
-                    rsaOutputArea.value = decrypted;
-                    showMessage('Decrypted successfully with private key.', 'success');
-                } catch(e) { showMessage(`Error: ${e.message}`, 'error'); }
-            });
-
-            // --- Helper Functions for Asymmetric Ciphers ---
-            function showMessage(message, type = 'info') {
-                rsaMessageArea.textContent = message;
-                rsaMessageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border'; // Reset classes
-                if (type === 'success') { rsaMessageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50'); }
-                else if (type === 'error') { rsaMessageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50'); }
-                else { rsaMessageArea.classList.add('text-blue-300', 'bg-blue-900/5This is how it should look now:/50'); }
-            }
-            function clearMessage() {
-                rsaMessageArea.textContent = '';
-                rsaMessageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border border-transparent';
-            }
-        });
-
-        // === SCRIPT FOR INFO MODAL ===
-        document.addEventListener('DOMContentLoaded', () => {
-            const infoData = {
-                // Classical
-                'caesar': { title: 'Caesar Cipher', desc: 'A simple substitution cipher where each letter is shifted by a fixed number of positions down the alphabet. It is one of the oldest and simplest ciphers.', use: 'Educational, demonstrating basic substitution.', security: 'Extremely insecure. Can be broken in seconds by brute force (trying all 25 possible shifts) or frequency analysis.' },
-                'atbash': { title: 'Atbash Cipher', desc: 'A substitution cipher where the alphabet is reversed. \'A\' becomes \'Z\', \'B\' becomes \'Y\', and so on. It requires no key.', use: 'Educational, demonstrating a fixed substitution rule.', security: 'Extremely insecure. Since the rule is fixed, no key is needed to decrypt. It is trivial to break.' },
-                'vigenere': { title: 'Vigenere Cipher', desc: 'A polyalphabetic substitution cipher that uses a keyword. Each letter of the keyword provides a different shift, (e.g., "KEY" uses shifts 10, 4, 24).', use: 'Historically significant as the first "unbreakable" cipher. Good for demonstrating polyalphabetic substitution.', security: 'Weak. While it resists simple frequency analysis, it can be broken using Kasiski examination or index of coincidence to find the key length.' },
-                'affine': { title: 'Affine Cipher', desc: 'A substitution cipher that uses a linear function (ax + b) mod 26 to map letters. The key consists of two numbers, \'a\' and \'b\'.', use: 'Educational, demonstrating a simple mathematical function for encryption.', security: 'Very insecure. There are only a few valid \'a\' values, making it only slightly stronger than a Caesar cipher. Easily broken with frequency analysis.' },
-                'playfair': { title: 'Playfair Cipher', desc: 'A polygraphic substitution cipher that encrypts pairs of letters (digraphs) instead of single letters, using a 5x5 grid based on a keyword.', use: 'Historically significant (used in WWI). Good for demonstrating polygraphic substitution, which hides single-letter frequencies.', security: 'Weak. While much stronger than simple substitution, it still retains some statistical properties of the language and can be broken with frequency analysis on digraphs.' },
-                'railfence': { title: 'Rail Fence Cipher', desc: 'A transposition cipher that shuffles the order of the letters. It writes the text in a zigzag pattern on a fixed number of "rails" and then reads it off row by row.', use: 'Educational, demonstrating transposition (shuffling) vs. substitution (replacing).', security: 'Very insecure. Can be easily broken by hand for a small number of rails. The letter frequencies are unchanged, which is a major clue.' },
-                'hill': { title: 'Hill Cipher', desc: 'A polygraphic cipher that uses linear algebra. It encrypts blocks of letters (e.g., pairs or triples) using matrix multiplication.', use: 'Academically significant for introducing advanced mathematics. Demonstrates how to hide letter frequencies very effectively.', security: 'Insecure. While it resists frequency analysis, it is vulnerable to a "known-plaintext attack." A small 2x2 or 3x3 version is weak. Its main weakness is its linearity.' },
-                
-                // Symmetric
-                'aes': { 
-                    title: 'AES (Advanced Encryption Standard)', 
-                    desc: 'The modern, global standard for symmetric encryption. It is a "block cipher" that encrypts data in 128-bit blocks using a 128, 192, or 256-bit key.', 
-                    use: 'Confidentiality. Used everywhere: Wi-Fi (WPA2), VPNs, file encryption (SSL/TLS), and secure messaging.', 
-                    security: 'Considered secure against all known practical attacks when implemented correctly (using a proper mode of operation and a random IV).',
-                    extra: 'Modes of Operation: AES is a "block cipher," meaning it only knows how to encrypt one 16-byte block. A "Mode of Operation" defines how to securely encrypt *multiple* blocks. \n- ECB (Electronic Codebook): The simplest mode. Each block is encrypted independently. This is INSECURE as identical plaintext blocks produce identical ciphertext blocks, leaving patterns. \n- CBC (Cipher Block Chaining): The default and most common mode. Each block is XORed with the *previous* ciphertext block before encryption, breaking patterns. It requires an IV for the first block.'
-                },
-                'des': { 
-                    title: 'DES (Data Encryption Standard)', 
-                    desc: 'The former U.S. standard for symmetric encryption. It uses a 56-bit key and encrypts data in 64-bit blocks.', 
-                    use: 'Primarily educational. Used to teach the principles of modern block ciphers (like the Feistel network).', 
-                    security: 'Completely insecure. The 56-bit key is far too small and can be brute-forced in hours or less with modern computers. DO NOT USE for real security.',
-                    extra: 'Like AES, DES is a block cipher and requires a mode of operation (like CBC or ECB) to encrypt messages longer than 8 bytes.'
-                },
-                'rabbit': { title: 'Rabbit (Stream Cipher)', desc: 'A high-speed symmetric "stream cipher." Unlike block ciphers (AES, DES) which encrypt in chunks, stream ciphers encrypt data one bit or byte at a time.', use: 'Confidentiality. Ideal for real-time applications where data comes in a continuous stream, like encrypted phone calls or live video.', security: 'Considered secure. It was a finalist in the eSTREAM project. It is very fast in software implementations.' },
-                'sha256': { title: 'SHA-256 (Secure Hash Algorithm)', desc: 'A "cryptographic hash function" that takes any input and produces a fixed-size 256-bit (32-byte) "fingerprint" or "hash." It is a one-way function.', use: 'Authentication & Integrity. Used to verify file integrity (downloads), in digital signatures, and for password storage (by hashing the password).', security: 'Considered secure. It is computationally infeasible to find the original input from the hash (pre-image resistance) or to find two inputs that produce the same hash (collision resistance).' },
-                'hmac-sha256': { title: 'HMAC-SHA256 (Hashed Message Authentication Code)', desc: 'A way to combine a hash function (SHA-256) with a secret key. It produces a hash that can only be verified by someone who also has the secret key.', use: 'Authentication & Integrity. Used to verify that a message came from a specific sender (who has the key) AND that it was not tampered with.', security: 'Very secure. It is the standard for message authentication and is used in many protocols like TLS (HTTPS) and IPsec (VPNs) to ensure data integrity.' },
-                'aes-hmac': { title: 'AES + HMAC (Authenticated Encryption)', desc: 'This is not a single algorithm, but a *combination* of two: AES for confidentiality (encryption) and HMAC for authentication (integrity).', use: 'Confidentiality AND Authentication. This is the goal of modern cryptography. It ensures data is secret (AES) AND that it has not been tamped with (HMAC).', security: 'The gold standard. Using encryption *without* authentication (e.C., AES alone) is a common vulnerability. This "Encrypt-then-MAC" combination is a highly secure and recommended pattern.' },
-
-                // Asymmetric
-                'rsa': { 
-                    title: 'RSA (Rivest–Shamir–Adleman)', 
-                    desc: 'The most widely used "asymmetric" cipher. It uses a *pair* of keys: a "Public Key" (which can be shared with anyone) for encryption, and a "Private Key" (kept secret) for decryption.', 
-                    use: 'Key Exchange & Digital Signatures. Its main use is NOT to encrypt large messages (it\'s slow). It\'s used to securely encrypt a *symmetric key* (like an AES key) which is then used for the actual high-speed communication. This is how SSL/TLS (HTTPS) works.', 
-                    security: 'Secure when used with a large key (2048-bit or more) and proper padding. Its security relies on the extreme difficulty of factoring the product of two large prime numbers.'
-                }
-            };
-
-            const modal = document.getElementById('infoModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const infoBtnClassical = document.getElementById('infoBtnClassical');
-            const infoBtnSymmetric = document.getElementById('infoBtnSymmetric');
-            const infoBtnAsymmetric = document.getElementById('infoBtnAsymmetric');
+            // === SECTION 3: ASYMMETRIC CIPHERS ===
+            // Removed
             
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
-            const modalUseCase = document.getElementById('modalUseCase');
-            const modalSecurity = document.getElementById('modalSecurity');
-            const modalExtraInfo = document.getElementById('modalExtraInfo');
-            const modalExtraText = document.getElementById('modalExtraText');
 
-            function showModal(algId) {
-                const data = infoData[algId];
-                if (!data) return;
+            // === SECTION 4: INFO MODAL ===
+            if (modal) {
+                const infoData = {
+                    // Classical
+                    'caesar': { title: 'Caesar Cipher', desc: 'A simple substitution cipher where each letter is shifted by a fixed number of positions down the alphabet. It is one of the oldest and simplest ciphers.', use: 'Educational, demonstrating basic substitution.', security: 'Extremely insecure. Can be broken in seconds by brute force (trying all 25 possible shifts) or frequency analysis.' },
+                    'atbash': { title: 'Atbash Cipher', desc: 'A substitution cipher where the alphabet is reversed. \'A\' becomes \'Z\', \'B\' becomes \'Y\', and so on. It requires no key.', use: 'Educational, demonstrating a fixed substitution rule.', security: 'Extremely insecure. Since the rule is fixed, no key is needed to decrypt. It is trivial to break.' },
+                    'vigenere': { title: 'Vigenere Cipher', desc: 'A polyalphabetic substitution cipher that uses a keyword. Each letter of the keyword provides a different shift, (e.g., "KEY" uses shifts 10, 4, 24).', use: 'Historically significant as the first "unbreakable" cipher. Good for demonstrating polyalphabetic substitution.', security: 'Weak. While it resists simple frequency analysis, it can be broken using Kasiski examination or index of coincidence to find the key length.' },
+                    'affine': { title: 'Affine Cipher', desc: 'A substitution cipher that uses a linear function (ax + b) mod 26 to map letters. The key consists of two numbers, \'a\' and \'b\'.', use: 'Educational, demonstrating a simple mathematical function for encryption.', security: 'Very insecure. There are only a few valid \'a\' values, making it only slightly stronger than a Caesar cipher. Easily broken with frequency analysis.' },
+                    'playfair': { title: 'Playfair Cipher', desc: 'A polygraphic substitution cipher that encrypts pairs of letters (digraphs) instead of single letters, using a 5x5 grid based on a keyword.', use: 'Historically significant (used in WWI). Good for demonstrating polygraphic substitution, which hides single-letter frequencies.', security: 'Weak. While much stronger than simple substitution, it still retains some statistical properties of the language and can be broken with frequency analysis on digraphs.' },
+                    'railfence': { title: 'Rail Fence Cipher', desc: 'A transposition cipher that shuffles the order of the letters. It writes the text in a zigzag pattern on a fixed number of "rails" and then reads it off row by row.', use: 'Educational, demonstrating transposition (shuffling) vs. substitution (replacing).', security: 'Very insecure. Can be easily broken by hand for a small number of rails. The letter frequencies are unchanged, which is a major clue.' },
+                    'hill': { title: 'Hill Cipher', desc: 'A polygraphic cipher that uses linear algebra. It encrypts blocks of letters (e.g., pairs or triples) using matrix multiplication.', use: 'Academically significant for introducing advanced mathematics. Demonstrates how to hide letter frequencies very effectively.', security: 'Insecure. While it resists frequency analysis, it is vulnerable to a "known-plaintext attack." A small 2x2 or 3x3 version is weak. Its main weakness is its linearity.' },
+                    
+                    // Symmetric
+                    'aes': { 
+                        title: 'AES (Advanced Encryption Standard)', 
+                        desc: 'The modern, global standard for symmetric encryption. It is a "block cipher" that encrypts data in 128-bit blocks using a 128, 192, or 256-bit key.', 
+                        use: 'Confidentiality. Used everywhere: Wi-Fi (WPA2), VPNs, file encryption (SSL/TLS), and secure messaging.', 
+                        security: 'Considered secure against all known practical attacks when implemented correctly (using a proper mode of operation and a random IV).',
+                        extra: 'Modes of Operation: AES is a "block cipher," meaning it only knows how to encrypt one 16-byte block. A "Mode of Operation" defines how to securely encrypt *multiple* blocks. \n- ECB (Electronic Codebook): The simplest mode. Each block is encrypted independently. This is INSECURE as identical plaintext blocks produce identical ciphertext blocks, leaving patterns. \n- CBC (Cipher Block Chaining): The default and most common mode. Each block is XORed with the *previous* ciphertext block before encryption, breaking patterns. It requires an IV for the first block.'
+                    },
+                    'des': { 
+                        title: 'DES (Data Encryption Standard)', 
+                        desc: 'The former U.S. standard for symmetric encryption. It uses a 56-bit key and encrypts data in 64-bit blocks.', 
+                        use: 'Primarily educational. Used to teach the principles of modern block ciphers (like the Feistel network).', 
+                        security: 'Completely insecure. The 56-bit key is far too small and can be brute-forced in hours or less with modern computers. DO NOT USE for real security.',
+                        extra: 'Like AES, DES is a block cipher and requires a mode of operation (like CBC or ECB) to encrypt messages longer than 8 bytes.'
+                    },
+                    'rabbit': { title: 'Rabbit (Stream Cipher)', desc: 'A high-speed symmetric "stream cipher." Unlike block ciphers (AES, DES) which encrypt in chunks, stream ciphers encrypt data one bit or byte at a time.', use: 'Confidentiality. Ideal for real-time applications where data comes in a continuous stream, like encrypted phone calls or live video.', security: 'Considered secure. It was a finalist in the eSTREAM project. It is very fast in software implementations.' },
+                    'sha256': { title: 'SHA-256 (Secure Hash Algorithm)', desc: 'A "cryptographic hash function" that takes any input and produces a fixed-size 256-bit (32-byte) "fingerprint" or "hash." It is a one-way function.', use: 'Authentication & Integrity. Used to verify file integrity (downloads), in digital signatures, and for password storage (by hashing the password).', security: 'Considered secure. It is computationally infeasible to find the original input from the hash (pre-image resistance) or to find two inputs that produce the same hash (collision resistance).' },
+                    'hmac-sha256': { title: 'HMAC-SHA256 (Hashed Message Authentication Code)', desc: 'A way to combine a hash function (SHA-256) with a secret key. It produces a hash that can only be verified by someone who also has the secret key.', use: 'Authentication & Integrity. Used to verify that a message came from a specific sender (who has the key) AND that it was not tampered with.', security: 'Very secure. It is the standard for message authentication and is used in many protocols like TLS (HTTPS) and IPsec (VPNs) to ensure data integrity.' },
+                    'aes-hmac': { title: 'AES + HMAC (Authenticated Encryption)', desc: 'This is not a single algorithm, but a *combination* of two: AES for confidentiality (encryption) and HMAC for authentication (integrity).', use: 'Confidentiality AND Authentication. This is the goal of modern cryptography. It ensures data is secret (AES) AND that it has not been tamped with (HMAC).', security: 'The gold standard. Using encryption *without* authentication (e.g., AES alone) is a common vulnerability. This "Encrypt-then-MAC" combination is a highly secure and recommended pattern.' },
 
-                modalTitle.textContent = data.title;
-                modalDescription.textContent = data.desc;
-                modalUseCase.textContent = data.use;
-                modalSecurity.textContent = data.security;
+                    // Asymmetric
+                    'rsa': { 
+                        title: 'RSA (Rivest–Shamir–Adleman)', 
+                        desc: 'The most widely used "asymmetric" cipher. It uses a *pair* of keys: a "Public Key" (which can be shared with anyone) for encryption, and a "Private Key" (kept secret) for decryption.', 
+                        use: 'Key Exchange & Digital Signatures. Its main use is NOT to encrypt large messages (it\'s slow). It\'s used to securely encrypt a *symmetric key* (like an AES key) which is then used for the actual high-speed communication. This is how SSL/TLS (HTTPS) works.', 
+                        security: 'Secure when used with a large key (2048-bit or more) and proper padding. Its security relies on the extreme difficulty of factoring the product of two large prime numbers.',
+                        extra: 'PEM Format: The `-----BEGIN...` block is the standard (PEM) format for storing and sharing keys. This is the correct format, not an error.'
+                    }
+                };
 
-                if (data.extra) {
-                    modalExtraText.textContent = data.extra;
-                    modalExtraInfo.classList.remove('hidden');
-                } else {
-                    modalExtraInfo.classList.add('hidden');
+                function showModal(algId) {
+                    const data = infoData[algId];
+                    if (!data) return;
+
+                    modalTitle.textContent = data.title;
+                    modalDescription.textContent = data.desc;
+                    modalUseCase.textContent = data.use;
+                    modalSecurity.textContent = data.security;
+
+                    if (data.extra) {
+                        modalExtraText.textContent = data.extra;
+                        modalExtraInfo.classList.remove('hidden');
+                    } else {
+                        modalExtraInfo.classList.add('hidden');
+                    }
+                    
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.firstElementChild.classList.remove('scale-95');
+                    }, 10);
                 }
+
+                function hideModal() {
+                    modal.classList.add('opacity-0');
+                    modal.firstElementChild.classList.add('scale-95');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                }
+
+                infoBtnClassical.addEventListener('click', () => {
+                    const selectedAlg = classicalSelect.value;
+                    showModal(selectedAlg);
+                });
+
+                infoBtnSymmetric.addEventListener('click', () => {
+                    const selectedAlg = symmetricSelect.value;
+                    showModal(selectedAlg);
+                });
+
+                // Removed listener for infoBtnAsymmetric
                 
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.firstElementChild.classList.remove('scale-95');
-                }, 10);
+                closeModalBtn.addEventListener('click', hideModal);
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        hideModal();
+                    }
+                });
             }
-
-            function hideModal() {
-                modal.classList.add('opacity-0');
-                modal.firstElementChild.classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            }
-
-            infoBtnClassical.addEventListener('click', () => {
-                const selectedAlg = document.getElementById('classicalAlgorithm').value;
-                showModal(selectedAlg);
-            });
-
-            infoBtnSymmetric.addEventListener('click', () => {
-                const selectedAlg = document.getElementById('symmetricAlgorithm').value;
-                showModal(selectedAlg);
-            });
-
-
-            infoBtnAsymmetric.addEventListener('click', () => {
-                const selectedAlg = document.getElementById('asymmetricAlgorithm').value;
-                showModal(selectedAlg);
-            });
-
-            closeModalBtn.addEventListener('click', hideModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    hideModal();
-                }
-            });
         });
     </script>
 </body>
