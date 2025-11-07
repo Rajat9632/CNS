@@ -132,7 +132,7 @@
                         <label for="symmetricAlgorithm" class="block text-sm font-medium text-gray-300 mb-2">1. Select Algorithm</label>
                         <select id="symmetricAlgorithm" class="form-input-base">
                             <optgroup label="Confidentiality (Encryption)">
-                                <option value="aes">AES (Advanced Encryption Standard)</option>
+                                <option value="aes" selected>AES (Advanced Encryption Standard)</option>
                                 <option value="des">DES (Data Encryption Standard)</option>
                                 <option value="rabbit">Rabbit (Stream Cipher)</option>
                             </optgroup>
@@ -371,21 +371,31 @@
                 'cfb': "Required. 16 bytes (32 hex) to act as a 'stream'. e.g., '00...ff'",
                 'ofb': "Required. 16 bytes (32 hex) to act as a 'stream'. e.g., '00...ff'"
             };
+            
+            // --- Helper function to update block options visibility ---
+            function updateBlockOptionsVisibility() {
+                const alg = algorithmSelect.value;
+                const isBlockCipher = (alg === 'aes' || alg === 'des');
+                blockOptions.classList.toggle('hidden', !isBlockCipher);
+            }
 
             // --- Event Listeners for Symmetric Ciphers ---
             if (algorithmSelect) {
-                // Initial state setup
-                symmetricKeyInfo.textContent = symmetricKeyInfoMap[algorithmSelect.value];
-                ivInfo.textContent = ivInfoMap[blockModeSelect.value];
-
-                // Show/hide key warning & block options
+                // --- THIS IS THE FIX ---
+                // Run all checks on page load
+                const initialAlg = algorithmSelect.value;
+                updateBlockOptionsVisibility(); // Show/hide block options
+                keyWarning.classList.toggle('hidden', initialAlg !== 'sha256'); // Show/hide key warning
+                symmetricKeyInfo.textContent = symmetricKeyInfoMap[initialAlg]; // Set key info
+                ivInfo.textContent = ivInfoMap[blockModeSelect.value]; // Set IV info
+                // --- END OF FIX ---
+                
+                // Show/hide key warning & block options on CHANGE
                 algorithmSelect.addEventListener('change', () => {
                     const alg = algorithmSelect.value;
                     keyWarning.classList.toggle('hidden', alg !== 'sha256');
                     symmetricKeyInfo.textContent = symmetricKeyInfoMap[alg] || "Enter a secret key.";
-                    
-                    const isBlockCipher = (alg === 'aes' || alg === 'des');
-                    blockOptions.classList.toggle('hidden', !isBlockCipher);
+                    updateBlockOptionsVisibility(); // Call the helper function
                 });
 
                 // Update IV info on mode change
@@ -430,7 +440,6 @@
                     if (blockIVInput.value) {
                         try {
                             options.iv = CryptoJS.enc.Hex.parse(blockIVInput.value);
-                            // AES IV is 16 bytes, DES IV is 8 bytes. For simplicity, we'll aim for AES.
                             let expectedBytes = (alg === 'des') ? 8 : 16;
                             if (options.iv.sigBytes !== expectedBytes) {
                                 if (!isDecrypt) throw new Error(`IV must be ${expectedBytes} bytes (${expectedBytes*2} hex characters).`);
@@ -439,7 +448,7 @@
                             if (!isDecrypt) throw new Error(`Invalid IV format. Must be hex.`);
                         }
                     } else if (mode !== 'ECB') {
-                        if (!isDecrypt) throw new Error('IV is required for this mode. (ECB does not use one).');
+                        throw new Error('IV is required for this mode. (ECB does not use one).');
                     }
                     
                     // ECB does not use an IV
@@ -585,6 +594,11 @@
                 'railfence': 'Enter a number of rails (e.g., 3)',
                 'hill': 'Enter 4 numbers for a 2x2 matrix (e.g., "4, 1, 3, 2"). Determinant must be coprime to 26.'
             };
+            
+            // Set initial info on page load
+            if(select) {
+                keyInfo.textContent = keyInfoMap[select.value];
+            }
 
             // Update key info on algorithm change
             select.addEventListener('change', () => {
@@ -922,7 +936,7 @@
                 rsaMessageArea.className = 'mt-2 text-sm h-10 p-2 rounded-md border'; // Reset classes
                 if (type === 'success') { rsaMessageArea.classList.add('text-green-300', 'bg-green-900/50', 'border-green-700/50'); }
                 else if (type === 'error') { rsaMessageArea.classList.add('text-red-300', 'bg-red-900/50', 'border-red-700/50'); }
-                else { rsaMessageArea.classList.add('text-blue-300', 'bg-blue-900/50', 'border-blue-700/50'); }
+                else { rsaMessageArea.classList.add('text-blue-300', 'bg-blue-900/5This is how it should look now:/50'); }
             }
             function clearMessage() {
                 rsaMessageArea.textContent = '';
@@ -1022,6 +1036,7 @@
                 const selectedAlg = document.getElementById('symmetricAlgorithm').value;
                 showModal(selectedAlg);
             });
+
 
             infoBtnAsymmetric.addEventListener('click', () => {
                 const selectedAlg = document.getElementById('asymmetricAlgorithm').value;
